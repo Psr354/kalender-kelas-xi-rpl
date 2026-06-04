@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kalender Kelas - SMKN 40 Jakarta</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      :root {
+        --brand-blue: #5b86e5;
+        --soft-bg: #e8f0fe;
+      }
+
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: var(--soft-bg);
+      }
+
+      .card-soft {
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 8px 22px rgba(91, 134, 229, 0.12);
+      }
+
+      .calendar-cell {
+        min-height: 92px;
+      }
+
+      @media (max-width: 768px) {
+        .calendar-cell {
+          min-height: 76px;
+        }
+      }
+    </style>
+  </head>
+  <body class="text-slate-700">
+    <header class="bg-[color:var(--brand-blue)] text-white shadow-md">
+      <div
+        class="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6"
+      >
+        <div class="flex items-center gap-3">
+          <img
+            src="assets/logo_patpul.png"
+            alt="Logo Sekolah"
+            class="h-11 w-11 rounded-full bg-white/90 object-contain p-1"
+          />
+          <div>
+            <p class="text-sm opacity-90">Kalender Kelas</p>
+            <h1 class="text-base font-semibold sm:text-lg">SMKN 40 Jakarta</h1>
+          </div>
+        </div>
+
+        <nav class="hidden items-center gap-6 text-sm font-medium md:flex">
+          <a href="#" class="hover:opacity-90">Kalender</a>
+          <a href="#" class="hover:opacity-90">Jadwal Kelas</a>
+          <a href="#pengingat" class="hover:opacity-90">Pengingat</a>
+          <button
+            id="topAddTaskBtn"
+            class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-blue-600 shadow-sm transition hover:bg-slate-100"
+          >
+            Tambah Tugas
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-6">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-10">
+        <section class="space-y-4 lg:col-span-7">
+          <article class="card-soft p-4 sm:p-5">
+            <div class="mb-4 flex items-center justify-between gap-3">
+              <button
+                id="prevMonthBtn"
+                class="rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-200"
+                aria-label="Bulan sebelumnya"
+              >
+                &lt;
+              </button>
+              <h2 id="monthTitle" class="text-base font-semibold text-slate-700 sm:text-lg">-</h2>
+              <button
+                id="nextMonthBtn"
+                class="rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-200"
+                aria-label="Bulan selanjutnya"
+              >
+                &gt;
+              </button>
+            </div>
+
+            <div class="grid grid-cols-7 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+              <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold text-red-500">MIN</div>
+              <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold">SEN</div>
+              <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold">SEL</div>
+              <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold">RAB</div>
+              <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold">KAM</div>
+              <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold">JUM</div>
+              <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold">SAB</div>
+            </div>
+
+            <div id="calendarGrid" class="grid grid-cols-7 overflow-hidden rounded-b-xl border border-t-0 border-slate-200"></div>
+          </article>
+
+          <article id="pengingat" class="card-soft p-4 sm:p-5">
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="text-sm font-bold tracking-wide text-slate-700">PENGINGAT UMUM</h3>
+              <button
+                id="editAnnouncementsBtn"
+                class="hidden rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-100"
+              >
+                Edit
+              </button>
+            </div>
+            <ul id="announcementList" class="space-y-2 text-sm">
+              <li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada pengingat.</li>
+            </ul>
+          </article>
+        </section>
+
+        <aside class="space-y-4 lg:col-span-3">
+          <article class="card-soft p-4 sm:p-5">
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="text-sm font-bold tracking-wide text-slate-700">ACARA MENDATANG</h3>
+              <button
+                id="editEventsBtn"
+                class="hidden rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-100"
+              >
+                Edit
+              </button>
+            </div>
+            <ul id="eventsList" class="space-y-2 text-sm">
+              <li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada acara.</li>
+            </ul>
+          </article>
+
+          <article class="card-soft p-4 sm:p-5">
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="text-sm font-bold tracking-wide text-slate-700">JADWAL PELAJARAN HARI INI</h3>
+              <button
+                id="editScheduleBtn"
+                class="hidden rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-100"
+              >
+                Edit
+              </button>
+            </div>
+
+            <p id="todayScheduleLabel" class="mb-3 text-xs font-semibold text-blue-600">Hari ini: -</p>
+
+            <div class="overflow-x-auto rounded-lg border border-slate-200">
+              <table class="min-w-full text-left text-xs sm:text-sm">
+                <thead class="bg-slate-50 text-slate-600">
+                  <tr>
+                    <th class="px-3 py-2 font-semibold">Guru</th>
+                    <th class="px-3 py-2 font-semibold">Waktu</th>
+                    <th class="px-3 py-2 font-semibold">Mata Pelajaran</th>
+                  </tr>
+                </thead>
+                <tbody id="todayScheduleTable" class="divide-y divide-slate-100">
+                  <tr>
+                    <td colspan="3" class="px-3 py-3 text-center text-slate-500">Belum ada jadwal hari ini.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <button
+              id="sidebarAddTaskBtn"
+              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[color:var(--brand-blue)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95"
+            >
+              <span class="text-base leading-none">+</span>
+              TAMBAH TUGAS
+            </button>
+          </article>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="px-4 pb-5 text-center text-xs text-slate-500 sm:px-6">
+      <p>Kalender Untuk Kelas XI-RPL.</p>
+      <button
+        id="openAdminBtn"
+        class="fixed bottom-3 right-3 rounded-full bg-slate-700 p-2 text-xs text-white opacity-80 shadow-md hover:opacity-100"
+        title="Admin Login"
+        aria-label="Admin Login"
+      >
+        ⚙️
+      </button>
+    </footer>
+
+    <!-- Modal Login Admin -->
+    <div id="loginModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-4">
+      <div class="card-soft w-full max-w-sm p-5">
+        <div class="mb-4 flex items-center justify-between">
+          <h4 class="text-base font-semibold">Login Admin</h4>
+          <button class="closeModal rounded bg-slate-100 px-2 py-1 text-xs">Tutup</button>
+        </div>
+        <form id="loginForm" class="space-y-3">
+          <input id="adminEmail" type="email" placeholder="Email" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <input id="adminPassword" type="password" placeholder="Password" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <button class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">Login</button>
+          <p id="loginMsg" class="text-center text-xs text-slate-500"></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Tugas Pribadi -->
+    <div id="taskModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-4">
+      <div class="card-soft w-full max-w-md p-5">
+        <div class="mb-4 flex items-center justify-between">
+          <h4 class="text-base font-semibold">Tambah Tugas Pribadi</h4>
+          <button class="closeModal rounded bg-slate-100 px-2 py-1 text-xs">Tutup</button>
+        </div>
+        <form id="taskForm" class="space-y-3">
+          <input id="taskDate" type="date" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <input id="taskTitle" type="text" placeholder="Contoh: Kerjakan PR Matematika" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <button class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">Simpan Tugas</button>
+        </form>
+        <div class="mt-4">
+          <p class="mb-2 text-xs font-semibold text-slate-600">Daftar tugas pada tanggal terpilih</p>
+          <ul id="taskEditorList" class="max-h-40 space-y-2 overflow-auto text-sm">
+            <li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada tugas.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Edit Acara -->
+    <div id="eventsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-4">
+      <div class="card-soft w-full max-w-lg p-5">
+        <div class="mb-4 flex items-center justify-between">
+          <h4 class="text-base font-semibold">Edit Acara Mendatang</h4>
+          <button class="closeModal rounded bg-slate-100 px-2 py-1 text-xs">Tutup</button>
+        </div>
+        <form id="eventForm" class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <input id="eventDate" type="date" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <input id="eventTitle" type="text" placeholder="Nama acara" class="rounded-lg border border-slate-300 px-3 py-2 text-sm sm:col-span-2" required />
+          <button class="rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white sm:col-span-3">Tambah Acara</button>
+        </form>
+        <ul id="eventsEditorList" class="mt-4 max-h-56 space-y-2 overflow-auto text-sm"></ul>
+      </div>
+    </div>
+
+    <!-- Modal Edit Jadwal -->
+    <div id="scheduleModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-4">
+      <div class="card-soft w-full max-w-2xl p-5">
+        <div class="mb-4 flex items-center justify-between">
+          <h4 class="text-base font-semibold">Edit Jadwal Pelajaran</h4>
+          <button class="closeModal rounded bg-slate-100 px-2 py-1 text-xs">Tutup</button>
+        </div>
+
+        <div class="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-4">
+          <select id="scheduleDay" class="rounded-lg border border-slate-300 px-3 py-2 text-sm sm:col-span-1">
+            <option value="minggu">Minggu</option>
+            <option value="senin">Senin</option>
+            <option value="selasa">Selasa</option>
+            <option value="rabu">Rabu</option>
+            <option value="kamis">Kamis</option>
+            <option value="jumat">Jumat</option>
+            <option value="sabtu">Sabtu</option>
+          </select>
+          <input id="scheduleTeacher" type="text" placeholder="Guru" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <input id="scheduleTime" type="text" placeholder="Waktu (07:00 - 08:30)" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <input id="scheduleSubject" type="text" placeholder="Mata pelajaran" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        </div>
+
+        <button id="addScheduleItemBtn" class="mb-3 rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">
+          Tambah Item Jadwal
+        </button>
+
+        <ul id="scheduleEditorList" class="max-h-64 space-y-2 overflow-auto text-sm"></ul>
+      </div>
+    </div>
+
+    <!-- Modal Edit Pengingat -->
+    <div id="announcementsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-4">
+      <div class="card-soft w-full max-w-lg p-5">
+        <div class="mb-4 flex items-center justify-between">
+          <h4 class="text-base font-semibold">Edit Pengingat Umum</h4>
+          <button class="closeModal rounded bg-slate-100 px-2 py-1 text-xs">Tutup</button>
+        </div>
+        <form id="announcementForm" class="space-y-2">
+          <input id="announcementText" type="text" placeholder="Isi pengingat" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <button class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">Tambah Pengingat</button>
+        </form>
+        <ul id="announcementEditorList" class="mt-4 max-h-56 space-y-2 overflow-auto text-sm"></ul>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        doc,
+        deleteDoc,
+        setDoc,
+        getDoc,
+        onSnapshot,
+        query,
+        orderBy,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+      // ==========================================================
+      // FIREBASE CONFIG - GANTI DENGAN DATA PROJECT ANDA
+      // Firebase Console > Project settings > General > Your apps
+      // ==========================================================
+       const firebaseConfig = {
+        apiKey: "AIzaSyAQrQdRkPyThLHxgGGHj0gQshtQ_ifCntE",
+        authDomain: "kalenderpl.firebaseapp.com",
+        projectId: "kalenderpl",
+        storageBucket: "kalenderpl.firebasestorage.app",
+        messagingSenderId: "700761357878",
+        appId: "1:700761357878:web:c2640728382d5506afa297"
+        };
+
+      const monthNames = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
+      ];
+
+      const dayMap = ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"];
+      const dayNameMap = {
+        minggu: "Minggu",
+        senin: "Senin",
+        selasa: "Selasa",
+        rabu: "Rabu",
+        kamis: "Kamis",
+        jumat: "Jumat",
+        sabtu: "Sabtu",
+      };
+
+      let isAdmin = false;
+      let auth = null;
+      let db = null;
+
+      const now = new Date();
+      let currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      const state = {
+        events: [],
+        schedule: {},
+        announcements: [],
+        personalTasks: JSON.parse(localStorage.getItem("personalTasks") || "{}"),
+      };
+
+      const monthTitle = document.getElementById("monthTitle");
+      const calendarGrid = document.getElementById("calendarGrid");
+      const eventsList = document.getElementById("eventsList");
+      const todayScheduleTable = document.getElementById("todayScheduleTable");
+      const todayScheduleLabel = document.getElementById("todayScheduleLabel");
+      const announcementList = document.getElementById("announcementList");
+      const loginMsg = document.getElementById("loginMsg");
+      const taskDateInput = document.getElementById("taskDate");
+      const taskEditorList = document.getElementById("taskEditorList");
+
+      const allModals = ["loginModal", "taskModal", "eventsModal", "scheduleModal", "announcementsModal"];
+
+      function openModal(id) {
+        document.getElementById(id).classList.remove("hidden");
+        document.getElementById(id).classList.add("flex");
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).classList.add("hidden");
+        document.getElementById(id).classList.remove("flex");
+      }
+
+      function closeAllModals() {
+        allModals.forEach((id) => closeModal(id));
+      }
+
+      function formatDateKey(date) {
+        return date.toISOString().slice(0, 10);
+      }
+
+      function savePersonalTasks() {
+        localStorage.setItem("personalTasks", JSON.stringify(state.personalTasks));
+      }
+
+      function renderTaskEditor(selectedDate) {
+        const dateKey = selectedDate || taskDateInput.value;
+        if (!dateKey) {
+          taskEditorList.innerHTML = '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Pilih tanggal untuk melihat tugas.</li>';
+          return;
+        }
+
+        const tasks = state.personalTasks[dateKey] || [];
+        taskEditorList.innerHTML = tasks.length
+          ? tasks
+              .map(
+                (task, index) => `
+              <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2">
+                <span class="truncate">${task}</span>
+                <button data-date="${dateKey}" data-index="${index}" class="deleteTask rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">Hapus</button>
+              </li>
+            `
+              )
+              .join("")
+          : '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada tugas.</li>';
+
+        document.querySelectorAll(".deleteTask").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const date = btn.dataset.date;
+            const index = Number(btn.dataset.index);
+            const items = state.personalTasks[date] || [];
+            const updated = items.filter((_, i) => i !== index);
+
+            if (updated.length) {
+              state.personalTasks[date] = updated;
+            } else {
+              delete state.personalTasks[date];
+            }
+
+            savePersonalTasks();
+            renderCalendar();
+            renderTaskEditor(date);
+          });
+        });
+      }
+
+      function renderCalendar() {
+        const year = currentMonth.getFullYear();
+        const month = currentMonth.getMonth();
+        monthTitle.textContent = `${monthNames[month]} ${year}`;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+        const cells = [];
+
+        for (let i = firstDay - 1; i >= 0; i--) {
+          const dayNum = daysInPrevMonth - i;
+          cells.push({ day: dayNum, muted: true, date: new Date(year, month - 1, dayNum) });
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          cells.push({ day, muted: false, date: new Date(year, month, day) });
+        }
+
+        while (cells.length % 7 !== 0) {
+          const nextDay = cells.length - (firstDay + daysInMonth) + 1;
+          cells.push({ day: nextDay, muted: true, date: new Date(year, month + 1, nextDay) });
+        }
+
+        calendarGrid.innerHTML = "";
+
+        cells.forEach((cell, index) => {
+          const dayIndex = index % 7;
+          const isSunday = dayIndex === 0;
+          const isToday =
+            cell.date.getDate() === now.getDate() &&
+            cell.date.getMonth() === now.getMonth() &&
+            cell.date.getFullYear() === now.getFullYear();
+
+          const dateKey = formatDateKey(cell.date);
+          const tasks = state.personalTasks[dateKey] || [];
+
+          const cellEl = document.createElement("div");
+          cellEl.className = `calendar-cell border-b border-r border-slate-200 p-2 ${
+            cell.muted ? "bg-slate-50 text-slate-400" : "bg-white"
+          }`;
+
+          cellEl.innerHTML = `
+            <div class="mb-1 flex items-center justify-between">
+              <span class="text-sm font-semibold ${isSunday && !cell.muted ? "text-red-500" : ""} ${
+                isToday ? "rounded-md bg-blue-500 px-2 py-0.5 text-white" : ""
+              }">${cell.day}</span>
+              ${
+                !cell.muted
+                  ? `<button data-date="${dateKey}" class="quickAddTask text-[10px] text-blue-500 hover:underline">+ tugas</button>`
+                  : ""
+              }
+            </div>
+            <div class="space-y-1"></div>
+          `;
+
+          const badgeContainer = cellEl.querySelector(".space-y-1");
+          tasks.slice(0, 3).forEach((task) => {
+            const badge = document.createElement("span");
+            badge.className = "block truncate rounded bg-blue-100 px-2 py-0.5 text-[10px] text-blue-700";
+            badge.textContent = task;
+            badgeContainer.appendChild(badge);
+          });
+
+          if (tasks.length > 3) {
+            const more = document.createElement("span");
+            more.className = "block text-[10px] text-slate-500";
+            more.textContent = `+${tasks.length - 3} tugas lagi`;
+            badgeContainer.appendChild(more);
+          }
+
+          calendarGrid.appendChild(cellEl);
+        });
+
+        document.querySelectorAll(".quickAddTask").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById("taskDate").value = btn.dataset.date;
+            renderTaskEditor(btn.dataset.date);
+            openModal("taskModal");
+          });
+        });
+      }
+
+      function renderEvents() {
+        if (!state.events.length) {
+          eventsList.innerHTML = '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada acara.</li>';
+        } else {
+          eventsList.innerHTML = state.events
+            .slice(0, 8)
+            .map(
+              (event) => `
+              <li class="rounded-lg border border-slate-200 p-3">
+                <p class="text-xs font-semibold text-blue-600">${event.date || "Tanpa tanggal"}</p>
+                <p class="mt-1 text-sm font-medium text-slate-700">${event.title || "(Tanpa judul)"}</p>
+              </li>
+            `
+            )
+            .join("");
+        }
+
+        const editor = document.getElementById("eventsEditorList");
+        editor.innerHTML = state.events.length
+          ? state.events
+              .map(
+                (event) => `
+            <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2">
+              <div>
+                <p class="text-xs text-blue-600">${event.date || "Tanpa tanggal"}</p>
+                <p class="font-medium">${event.title || "(Tanpa judul)"}</p>
+              </div>
+              <button data-id="${event.id}" class="deleteEvent rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">Hapus</button>
+            </li>
+          `
+              )
+              .join("")
+          : '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada data acara.</li>';
+
+        document.querySelectorAll(".deleteEvent").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (!db || !isAdmin) return;
+            await deleteDoc(doc(db, "events", btn.dataset.id));
+          });
+        });
+      }
+
+      function renderTodaySchedule() {
+        const dayKey = dayMap[new Date().getDay()];
+        todayScheduleLabel.textContent = `Hari ini: ${dayNameMap[dayKey] || "-"}`;
+        const todayData = state.schedule[dayKey] || { lessons: [] };
+        const lessons = Array.isArray(todayData.lessons) ? todayData.lessons : [];
+
+        if (!lessons.length) {
+          todayScheduleTable.innerHTML = `
+            <tr>
+              <td colspan="3" class="px-3 py-3 text-center text-slate-500">Belum ada jadwal hari ini.</td>
+            </tr>
+          `;
+        } else {
+          todayScheduleTable.innerHTML = lessons
+            .map(
+              (lesson) => `
+              <tr>
+                <td class="px-3 py-2">${lesson.teacher || "-"}</td>
+                <td class="px-3 py-2">${lesson.time || "-"}</td>
+                <td class="px-3 py-2">${lesson.subject || "-"}</td>
+              </tr>
+            `
+            )
+            .join("");
+        }
+
+        renderScheduleEditor();
+      }
+
+      function renderScheduleEditor() {
+        const day = document.getElementById("scheduleDay").value;
+        const list = document.getElementById("scheduleEditorList");
+        const lessons = (state.schedule[day] && state.schedule[day].lessons) || [];
+
+        list.innerHTML = lessons.length
+          ? lessons
+              .map(
+                (item, i) => `
+              <li class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 p-2">
+                <p><span class="font-semibold">${item.time || "-"}</span> - ${item.subject || "-"} (${item.teacher || "-"})</p>
+                <button data-day="${day}" data-index="${i}" class="deleteScheduleItem rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">Hapus</button>
+              </li>
+            `
+              )
+              .join("")
+          : '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada jadwal untuk hari ini.</li>';
+
+        document.querySelectorAll(".deleteScheduleItem").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (!db || !isAdmin) return;
+            const selectedDay = btn.dataset.day;
+            const index = Number(btn.dataset.index);
+            const current = (state.schedule[selectedDay] && state.schedule[selectedDay].lessons) || [];
+            const updated = current.filter((_, idx) => idx !== index);
+            await setDoc(doc(db, "schedule", selectedDay), { lessons: updated }, { merge: true });
+          });
+        });
+      }
+
+      function renderAnnouncements() {
+        if (!state.announcements.length) {
+          announcementList.innerHTML = '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada pengingat.</li>';
+        } else {
+          announcementList.innerHTML = state.announcements
+            .map(
+              (item) => `
+              <li class="rounded-lg border border-slate-200 p-3 text-sm">• ${item.text || "(Kosong)"}</li>
+            `
+            )
+            .join("");
+        }
+
+        const editor = document.getElementById("announcementEditorList");
+        editor.innerHTML = state.announcements.length
+          ? state.announcements
+              .map(
+                (item) => `
+              <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2">
+                <span>${item.text || "(Kosong)"}</span>
+                <button data-id="${item.id}" class="deleteAnnouncement rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">Hapus</button>
+              </li>
+            `
+              )
+              .join("")
+          : '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada pengingat.</li>';
+
+        document.querySelectorAll(".deleteAnnouncement").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (!db || !isAdmin) return;
+            await deleteDoc(doc(db, "announcements", btn.dataset.id));
+          });
+        });
+      }
+
+      function updateAdminUI() {
+        const editButtons = ["editEventsBtn", "editScheduleBtn", "editAnnouncementsBtn"];
+        editButtons.forEach((id) => {
+          document.getElementById(id).classList.toggle("hidden", !isAdmin);
+        });
+
+        let logoutBtn = document.getElementById("logoutAdminBtn");
+        if (isAdmin) {
+          if (!logoutBtn) {
+            logoutBtn = document.createElement("button");
+            logoutBtn.id = "logoutAdminBtn";
+            logoutBtn.className = "fixed bottom-3 left-3 rounded-full bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-md hover:bg-blue-700";
+            logoutBtn.textContent = "Logout Admin";
+            document.body.appendChild(logoutBtn);
+            logoutBtn.addEventListener("click", async () => {
+              if (auth) await signOut(auth);
+            });
+          }
+        } else if (logoutBtn) {
+          logoutBtn.remove();
+        }
+      }
+
+      function initFirebase() {
+        const configInvalid = Object.values(firebaseConfig).some((v) => !v || String(v).startsWith("PASTE_"));
+
+        if (configInvalid) {
+          loginMsg.textContent = "Firebase belum dikonfigurasi. Isi firebaseConfig di script.";
+          return;
+        }
+
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        onAuthStateChanged(auth, (user) => {
+          isAdmin = !!user;
+          updateAdminUI();
+          if (isAdmin) {
+            loginMsg.textContent = `Login sebagai ${user.email}`;
+            closeModal("loginModal");
+          }
+        });
+
+        const eventsQuery = query(collection(db, "events"), orderBy("date", "asc"));
+        onSnapshot(eventsQuery, (snapshot) => {
+          state.events = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+          renderEvents();
+        });
+
+        onSnapshot(collection(db, "schedule"), (snapshot) => {
+          const scheduleObj = {};
+          snapshot.docs.forEach((d) => {
+            scheduleObj[d.id] = d.data();
+          });
+          state.schedule = scheduleObj;
+          renderTodaySchedule();
+        });
+
+        const annQuery = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
+        onSnapshot(annQuery, (snapshot) => {
+          state.announcements = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+          renderAnnouncements();
+        });
+      }
+
+      // ===== Event bindings =====
+      document.getElementById("prevMonthBtn").addEventListener("click", () => {
+        currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+        renderCalendar();
+      });
+
+      document.getElementById("nextMonthBtn").addEventListener("click", () => {
+        currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+        renderCalendar();
+      });
+
+      document.getElementById("openAdminBtn").addEventListener("click", () => openModal("loginModal"));
+      document.getElementById("topAddTaskBtn").addEventListener("click", () => {
+        const today = formatDateKey(new Date());
+        taskDateInput.value = today;
+        renderTaskEditor(today);
+        openModal("taskModal");
+      });
+      document.getElementById("sidebarAddTaskBtn").addEventListener("click", () => {
+        const today = formatDateKey(new Date());
+        taskDateInput.value = today;
+        renderTaskEditor(today);
+        openModal("taskModal");
+      });
+
+      taskDateInput.addEventListener("change", () => {
+        renderTaskEditor(taskDateInput.value);
+      });
+
+      document.getElementById("editEventsBtn").addEventListener("click", () => openModal("eventsModal"));
+      document.getElementById("editScheduleBtn").addEventListener("click", () => openModal("scheduleModal"));
+      document.getElementById("editAnnouncementsBtn").addEventListener("click", () => openModal("announcementsModal"));
+
+      document.querySelectorAll(".closeModal").forEach((btn) => {
+        btn.addEventListener("click", () => closeAllModals());
+      });
+
+      allModals.forEach((id) => {
+        const modal = document.getElementById(id);
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeModal(id);
+        });
+      });
+
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!auth) {
+          loginMsg.textContent = "Firebase belum siap. Cek firebaseConfig.";
+          return;
+        }
+        const email = document.getElementById("adminEmail").value.trim();
+        const password = document.getElementById("adminPassword").value;
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          loginMsg.textContent = "Login berhasil.";
+        } catch (err) {
+          loginMsg.textContent = `Login gagal: ${err.message}`;
+        }
+      });
+
+      document.getElementById("taskForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const date = document.getElementById("taskDate").value;
+        const title = document.getElementById("taskTitle").value.trim();
+        if (!date || !title) return;
+
+        if (!state.personalTasks[date]) state.personalTasks[date] = [];
+        state.personalTasks[date].push(title);
+        savePersonalTasks();
+        renderCalendar();
+        renderTaskEditor(date);
+        closeModal("taskModal");
+        e.target.reset();
+      });
+
+      document.getElementById("eventForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!db || !isAdmin) return;
+
+        const date = document.getElementById("eventDate").value;
+        const title = document.getElementById("eventTitle").value.trim();
+        if (!date || !title) return;
+
+        await addDoc(collection(db, "events"), {
+          date,
+          title,
+          createdAt: serverTimestamp(),
+        });
+        e.target.reset();
+      });
+
+      document.getElementById("scheduleDay").addEventListener("change", renderScheduleEditor);
+
+      document.getElementById("addScheduleItemBtn").addEventListener("click", async () => {
+        if (!db || !isAdmin) return;
+        const day = document.getElementById("scheduleDay").value;
+        const teacher = document.getElementById("scheduleTeacher").value.trim();
+        const time = document.getElementById("scheduleTime").value.trim();
+        const subject = document.getElementById("scheduleSubject").value.trim();
+
+        if (!teacher || !time || !subject) return;
+
+        const dayRef = doc(db, "schedule", day);
+        const snap = await getDoc(dayRef);
+        const existing = snap.exists() && Array.isArray(snap.data().lessons) ? snap.data().lessons : [];
+
+        await setDoc(dayRef, { lessons: [...existing, { teacher, time, subject }] }, { merge: true });
+
+        document.getElementById("scheduleTeacher").value = "";
+        document.getElementById("scheduleTime").value = "";
+        document.getElementById("scheduleSubject").value = "";
+      });
+
+      document.getElementById("announcementForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!db || !isAdmin) return;
+
+        const text = document.getElementById("announcementText").value.trim();
+        if (!text) return;
+
+        await addDoc(collection(db, "announcements"), {
+          text,
+          createdAt: serverTimestamp(),
+        });
+
+        e.target.reset();
+      });
+
+      renderCalendar();
+      renderEvents();
+      document.getElementById("scheduleDay").value = dayMap[new Date().getDay()];
+      renderTodaySchedule();
+      renderAnnouncements();
+      initFirebase();
+    </script>
+  </body>
+</html>
