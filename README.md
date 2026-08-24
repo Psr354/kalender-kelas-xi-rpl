@@ -14,8 +14,11 @@ Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memanta
 ## ✨ Fitur Utama
 
 - Kalender bulanan interaktif dengan navigasi bulan.
+- Penanda hari libur nasional dan cuti bersama Indonesia tahun 2026.
 - Penambahan dan penghapusan tugas pribadi berdasarkan tanggal.
 - Penyimpanan tugas pribadi pada `localStorage` browser.
+- Rundown harian berbasis waktu, detail aktivitas, dan checklist penyelesaian.
+- Progress harian, poin, streak hari sempurna, dan animasi apresiasi saat rundown tuntas.
 - Daftar acara mendatang yang diperbarui secara real-time.
 - Jadwal pelajaran harian berdasarkan hari aktif.
 - Pengingat umum untuk seluruh siswa.
@@ -32,7 +35,7 @@ Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memanta
 | Firebase Authentication | Autentikasi admin |
 | Cloud Firestore | Penyimpanan dan sinkronisasi data bersama |
 | Google Fonts | Font antarmuka (`Inter`) |
-| Browser Local Storage | Penyimpanan tugas pribadi |
+| Browser Local Storage | Penyimpanan tugas pribadi dan rundown harian |
 
 ## 📋 Prasyarat
 
@@ -101,9 +104,13 @@ Tidak diperlukan Node.js maupun proses instalasi dependency karena seluruh depen
 1. Gunakan tombol `<` dan `>` untuk berpindah bulan.
 2. Klik **Tambah Tugas** atau **+ tugas** pada tanggal tertentu.
 3. Isi tanggal dan nama tugas, lalu klik **Simpan Tugas**.
-4. Lihat acara, jadwal hari ini, dan pengingat kelas pada halaman utama.
+4. Pilih tanggal pada bagian **Rundown satu hari penuh**.
+5. Isi jam mulai, jam selesai, aktivitas, dan detailnya, lalu tambahkan ke rundown.
+6. Centang aktivitas yang selesai untuk memperoleh poin dan membangun streak.
+7. Lihat acara, jadwal hari ini, hari libur, dan pengingat kelas pada halaman utama.
 
-Tugas pribadi hanya tersimpan pada browser dan perangkat tempat tugas tersebut dibuat.
+Tugas pribadi dan rundown harian hanya tersimpan pada browser dan perangkat tempat data tersebut dibuat.
+Pengunjung dari perangkat atau profil browser lain tidak dapat melihat data tersebut. Namun, pengguna lain yang memakai profil browser dan alamat web yang sama pada perangkat yang sama dapat membukanya. Gunakan profil browser pribadi dan hindari perangkat bersama untuk catatan yang sensitif.
 
 ### Admin
 

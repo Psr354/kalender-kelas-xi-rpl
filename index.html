@@ -12,37 +12,123 @@
       rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 
     <style>
       :root {
-        --brand-blue: #5b86e5;
-        --soft-bg: #e8f0fe;
+        --brand-blue: #2563eb;
+        --soft-bg: #f6f8fb;
+        --surface: #ffffff;
+        --border: #dfe5ef;
+        --text: #172033;
       }
 
       body {
         font-family: "Inter", system-ui, -apple-system, sans-serif;
         background: var(--soft-bg);
+        color: var(--text);
       }
 
       .card-soft {
-        border-radius: 16px;
-        background: #fff;
-        box-shadow: 0 8px 22px rgba(91, 134, 229, 0.12);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
       }
 
       .calendar-cell {
-        min-height: 92px;
+        min-height: 112px;
+      }
+
+      .planner-check {
+        accent-color: #16a34a;
+      }
+
+      .holiday-badge {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      button,
+      a,
+      input,
+      select {
+        touch-action: manipulation;
+      }
+
+      button,
+      a {
+        cursor: pointer;
+      }
+
+      .reward-pop {
+        animation: reward-pop 320ms ease-out;
+      }
+
+      .celebration-piece {
+        animation: celebration 900ms ease-out forwards;
+        border-radius: 2px;
+        height: 8px;
+        pointer-events: none;
+        position: fixed;
+        width: 8px;
+        z-index: 100;
+      }
+
+      @keyframes reward-pop {
+        0% { transform: scale(0.92); }
+        65% { transform: scale(1.04); }
+        100% { transform: scale(1); }
+      }
+
+      @keyframes celebration {
+        0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+        100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(240deg); }
       }
 
       @media (max-width: 768px) {
         .calendar-cell {
-          min-height: 76px;
+          min-height: 66px;
+        }
+
+        .quickAddTask {
+          display: none;
+        }
+
+        .holiday-badge {
+          display: block;
+          font-size: 0;
+          height: 6px;
+          margin-top: 3px;
+          padding: 0;
+          width: 18px;
+        }
+
+        .task-badge {
+          height: 4px;
+          overflow: hidden;
+          padding: 0;
+          text-indent: -9999px;
+          width: 18px;
+        }
+
+        .daily-progress-badge {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .reward-pop,
+        .celebration-piece {
+          animation: none;
         }
       }
     </style>
   </head>
   <body class="text-slate-700">
-    <header class="bg-[color:var(--brand-blue)] text-white shadow-md">
+    <header class="border-b border-blue-700 bg-[color:var(--brand-blue)] text-white">
       <div
         class="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6"
       >
@@ -53,7 +139,7 @@
             class="h-11 w-11 rounded-full bg-white/90 object-contain p-1"
           />
           <div>
-            <p class="text-sm opacity-90">Kalender Kelas</p>
+            <p class="text-xs font-medium opacity-80">Kalender Kelas</p>
             <h1 class="text-base font-semibold sm:text-lg">SMKN 40 Jakarta</h1>
           </div>
         </div>
@@ -61,10 +147,11 @@
         <nav class="hidden items-center gap-6 text-sm font-medium md:flex">
           <a href="#" class="hover:opacity-90">Kalender</a>
           <a href="#" class="hover:opacity-90">Jadwal Kelas</a>
+          <a href="#rundown" class="hover:opacity-90">Rundown Harian</a>
           <a href="#pengingat" class="hover:opacity-90">Pengingat</a>
           <button
             id="topAddTaskBtn"
-            class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-blue-600 shadow-sm transition hover:bg-slate-100"
+            class="rounded-lg bg-white px-4 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
           >
             Tambah Tugas
           </button>
@@ -72,29 +159,45 @@
       </div>
     </header>
 
-    <main class="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 sm:py-6">
+    <nav class="border-b border-slate-200 bg-white md:hidden" aria-label="Navigasi utama">
+      <div class="mx-auto grid max-w-7xl grid-cols-4 px-2">
+        <a href="#rundown" class="flex min-h-11 items-center justify-center gap-2 border-b-2 border-blue-600 text-xs font-semibold text-blue-700"><i data-lucide="list-checks" class="h-4 w-4" aria-hidden="true"></i>Hari ini</a>
+        <a href="#kalender" class="flex min-h-11 items-center justify-center gap-2 text-xs font-semibold text-slate-600"><i data-lucide="calendar-days" class="h-4 w-4" aria-hidden="true"></i>Kalender</a>
+        <a href="#jadwal" class="flex min-h-11 items-center justify-center gap-2 text-xs font-semibold text-slate-600"><i data-lucide="book-open" class="h-4 w-4" aria-hidden="true"></i>Pelajaran</a>
+        <button id="mobileAddTaskBtn" class="flex min-h-11 items-center justify-center gap-2 text-xs font-semibold text-slate-600"><i data-lucide="clipboard-plus" class="h-4 w-4" aria-hidden="true"></i>Tugas</button>
+      </div>
+    </nav>
+
+    <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+      <div class="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p class="text-sm font-semibold text-blue-700">Ruang kendali harian</p>
+          <h2 class="mt-1 text-2xl font-bold text-slate-900">Atur hari, jaga ritme.</h2>
+        </div>
+        <p id="currentDateLabel" class="text-sm font-medium text-slate-500"></p>
+      </div>
       <div class="grid grid-cols-1 gap-5 lg:grid-cols-10">
-        <section class="space-y-4 lg:col-span-7">
-          <article class="card-soft p-4 sm:p-5">
+        <section class="flex flex-col gap-5 lg:contents">
+          <article id="kalender" class="card-soft order-2 p-4 sm:p-5 lg:order-2 lg:col-span-7">
             <div class="mb-4 flex items-center justify-between gap-3">
               <button
                 id="prevMonthBtn"
-                class="rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-200"
+                class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-slate-100 text-sm font-semibold text-slate-600 transition hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 aria-label="Bulan sebelumnya"
               >
-                &lt;
+                <i data-lucide="chevron-left" class="h-4 w-4" aria-hidden="true"></i>
               </button>
               <h2 id="monthTitle" class="text-base font-semibold text-slate-700 sm:text-lg">-</h2>
               <button
                 id="nextMonthBtn"
-                class="rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-200"
+                class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-slate-100 text-sm font-semibold text-slate-600 transition hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 aria-label="Bulan selanjutnya"
               >
-                &gt;
+                <i data-lucide="chevron-right" class="h-4 w-4" aria-hidden="true"></i>
               </button>
             </div>
 
-            <div class="grid grid-cols-7 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+            <div class="grid grid-cols-7 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
               <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold text-red-500">MIN</div>
               <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold">SEN</div>
               <div class="border-b border-slate-200 p-2 text-center text-xs font-semibold">SEL</div>
@@ -105,9 +208,66 @@
             </div>
 
             <div id="calendarGrid" class="grid grid-cols-7 overflow-hidden rounded-b-xl border border-t-0 border-slate-200"></div>
+            <div class="mt-4 border-t border-slate-200 pt-4">
+              <div class="mb-2 flex items-center justify-between gap-3">
+                <h3 class="text-xs font-bold uppercase text-slate-600">Libur bulan ini</h3>
+                <div class="flex gap-3 text-xs text-slate-500"><span><span class="mr-1 inline-block h-2 w-2 rounded-full bg-red-500"></span>Nasional</span><span><span class="mr-1 inline-block h-2 w-2 rounded-full bg-amber-500"></span>Cuti bersama</span></div>
+              </div>
+              <ul id="holidayMonthList" class="grid gap-2 text-sm sm:grid-cols-2"></ul>
+            </div>
           </article>
 
-          <article id="pengingat" class="card-soft p-4 sm:p-5">
+          <article id="rundown" class="card-soft order-1 overflow-hidden lg:order-1 lg:col-span-10">
+            <div class="border-b border-slate-200 bg-white p-4 sm:p-6">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p class="text-xs font-bold uppercase text-blue-600">Ritme harian</p>
+                    <span class="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600"><i data-lucide="lock-keyhole" class="h-3.5 w-3.5" aria-hidden="true"></i>Pribadi di perangkat ini</span>
+                  </div>
+                  <h3 class="mt-2 text-xl font-bold text-slate-900">Rundown satu hari penuh</h3>
+                  <p class="mt-1 text-sm text-slate-500">Susun harimu, lalu centang satu per satu saat selesai.</p>
+                </div>
+                <label class="text-sm font-semibold text-slate-600">
+                  Tanggal
+                  <input id="plannerDate" type="date" class="mt-1 block min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" />
+                </label>
+              </div>
+
+              <div class="mt-5 grid gap-4 lg:grid-cols-4">
+                <div class="lg:col-span-3">
+                  <div class="mb-1 flex items-center justify-between text-xs font-semibold">
+                    <span id="plannerProgressLabel">Belum ada aktivitas</span>
+                    <span id="plannerProgressPercent" class="tabular-nums text-blue-600">0%</span>
+                  </div>
+                  <div class="h-3 overflow-hidden rounded-full bg-slate-200" role="progressbar" aria-label="Progress rundown hari ini" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="plannerProgressTrack">
+                    <div id="plannerProgressBar" class="h-full rounded-full bg-green-500 transition-all duration-300" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div id="rewardPanel" class="flex min-h-14 items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+                  <div>
+                    <p id="rewardTitle" class="text-sm font-bold text-amber-800">Mulai pelan-pelan</p>
+                    <p id="rewardSubtitle" class="text-xs text-amber-700">0 poin hari ini</p>
+                  </div>
+                  <div id="streakCount" class="flex h-10 min-w-10 items-center justify-center rounded-full bg-amber-500 px-2 text-sm font-bold text-white" title="Streak hari sempurna">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-4 sm:p-6">
+              <form id="plannerForm" class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-12">
+                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Mulai <span class="text-red-600">*</span><input id="plannerStart" type="time" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
+                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Selesai <span class="text-red-600">*</span><input id="plannerEnd" type="time" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
+                <label class="text-xs font-semibold text-slate-600 md:col-span-4">Aktivitas <span class="text-red-600">*</span><input id="plannerActivity" type="text" maxlength="80" placeholder="Contoh: Sarapan dan bersiap" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
+                <label class="text-xs font-semibold text-slate-600 md:col-span-4">Detail<input id="plannerDetail" type="text" maxlength="140" placeholder="Target atau catatan kecil" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" /></label>
+                <p id="plannerFormError" class="hidden text-sm font-medium text-red-600 md:col-span-12" role="alert"></p>
+                <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 md:col-span-3 md:col-start-10" type="submit"><i data-lucide="plus" class="h-4 w-4" aria-hidden="true"></i>Tambah aktivitas</button>
+              </form>
+              <ol id="plannerList" class="mt-4 space-y-2"></ol>
+            </div>
+          </article>
+
+          <article id="pengingat" class="card-soft order-3 p-4 sm:p-5 lg:order-4 lg:col-span-7">
             <div class="mb-3 flex items-center justify-between">
               <h3 class="text-sm font-bold tracking-wide text-slate-700">PENGINGAT UMUM</h3>
               <button
@@ -123,7 +283,7 @@
           </article>
         </section>
 
-        <aside class="space-y-4 lg:col-span-3">
+        <aside class="space-y-5 lg:order-3 lg:col-span-3">
           <article class="card-soft p-4 sm:p-5">
             <div class="mb-3 flex items-center justify-between">
               <h3 class="text-sm font-bold tracking-wide text-slate-700">ACARA MENDATANG</h3>
@@ -139,7 +299,7 @@
             </ul>
           </article>
 
-          <article class="card-soft p-4 sm:p-5">
+          <article id="jadwal" class="card-soft p-4 sm:p-5">
             <div class="mb-3 flex items-center justify-between">
               <h3 class="text-sm font-bold tracking-wide text-slate-700">JADWAL PELAJARAN HARI INI</h3>
               <button
@@ -171,9 +331,9 @@
 
             <button
               id="sidebarAddTaskBtn"
-              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[color:var(--brand-blue)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95"
+              class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--brand-blue)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              <span class="text-base leading-none">+</span>
+              <i data-lucide="plus" class="h-4 w-4" aria-hidden="true"></i>
               TAMBAH TUGAS
             </button>
           </article>
@@ -185,11 +345,11 @@
       <p>Kalender Untuk Kelas XI-RPL.</p>
       <button
         id="openAdminBtn"
-        class="fixed bottom-3 right-3 rounded-full bg-slate-700 p-2 text-xs text-white opacity-80 shadow-md hover:opacity-100"
+        class="fixed bottom-3 right-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-700 text-xs text-white opacity-80 shadow-md transition hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
         title="Admin Login"
         aria-label="Admin Login"
       >
-        ⚙️
+        <i data-lucide="settings" class="h-5 w-5" aria-hidden="true"></i>
       </button>
     </footer>
 
@@ -353,6 +513,34 @@
         sabtu: "Sabtu",
       };
 
+      const nationalHolidays = {
+        "2026-01-01": { name: "Tahun Baru 2026", type: "national" },
+        "2026-01-16": { name: "Isra Mikraj", type: "national" },
+        "2026-02-16": { name: "Cuti Bersama Imlek", type: "joint" },
+        "2026-02-17": { name: "Tahun Baru Imlek", type: "national" },
+        "2026-03-18": { name: "Cuti Bersama Nyepi", type: "joint" },
+        "2026-03-19": { name: "Hari Suci Nyepi", type: "national" },
+        "2026-03-20": { name: "Cuti Bersama Idulfitri", type: "joint" },
+        "2026-03-21": { name: "Idulfitri", type: "national" },
+        "2026-03-22": { name: "Idulfitri", type: "national" },
+        "2026-03-23": { name: "Cuti Bersama Idulfitri", type: "joint" },
+        "2026-03-24": { name: "Cuti Bersama Idulfitri", type: "joint" },
+        "2026-04-03": { name: "Wafat Yesus Kristus", type: "national" },
+        "2026-04-05": { name: "Paskah", type: "national" },
+        "2026-05-01": { name: "Hari Buruh", type: "national" },
+        "2026-05-14": { name: "Kenaikan Yesus Kristus", type: "national" },
+        "2026-05-15": { name: "Cuti Bersama Kenaikan", type: "joint" },
+        "2026-05-27": { name: "Iduladha", type: "national" },
+        "2026-05-28": { name: "Cuti Bersama Iduladha", type: "joint" },
+        "2026-05-31": { name: "Hari Raya Waisak", type: "national" },
+        "2026-06-01": { name: "Hari Lahir Pancasila", type: "national" },
+        "2026-06-16": { name: "Tahun Baru Islam", type: "national" },
+        "2026-08-17": { name: "Hari Kemerdekaan RI", type: "national" },
+        "2026-08-25": { name: "Maulid Nabi Muhammad", type: "national" },
+        "2026-12-24": { name: "Cuti Bersama Natal", type: "joint" },
+        "2026-12-25": { name: "Hari Raya Natal", type: "national" },
+      };
+
       let isAdmin = false;
       let auth = null;
       let db = null;
@@ -360,11 +548,19 @@
       const now = new Date();
       let currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
+      document.getElementById("currentDateLabel").textContent = new Intl.DateTimeFormat("id-ID", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(now);
+
       const state = {
         events: [],
         schedule: {},
         announcements: [],
         personalTasks: JSON.parse(localStorage.getItem("personalTasks") || "{}"),
+        dailyPlans: JSON.parse(localStorage.getItem("dailyPlans") || "{}"),
       };
 
       const monthTitle = document.getElementById("monthTitle");
@@ -376,6 +572,9 @@
       const loginMsg = document.getElementById("loginMsg");
       const taskDateInput = document.getElementById("taskDate");
       const taskEditorList = document.getElementById("taskEditorList");
+      const plannerDateInput = document.getElementById("plannerDate");
+      const plannerList = document.getElementById("plannerList");
+      const holidayMonthList = document.getElementById("holidayMonthList");
 
       const allModals = ["loginModal", "taskModal", "eventsModal", "scheduleModal", "announcementsModal"];
 
@@ -394,11 +593,139 @@
       }
 
       function formatDateKey(date) {
-        return date.toISOString().slice(0, 10);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
       }
 
       function savePersonalTasks() {
         localStorage.setItem("personalTasks", JSON.stringify(state.personalTasks));
+      }
+
+      function saveDailyPlans() {
+        localStorage.setItem("dailyPlans", JSON.stringify(state.dailyPlans));
+      }
+
+      function calculateStreak() {
+        let streak = 0;
+        const cursor = new Date();
+        const todayItems = state.dailyPlans[formatDateKey(cursor)] || [];
+        if (!todayItems.length || !todayItems.every((item) => item.completed)) cursor.setDate(cursor.getDate() - 1);
+
+        while (true) {
+          const items = state.dailyPlans[formatDateKey(cursor)] || [];
+          if (!items.length || !items.every((item) => item.completed)) break;
+          streak += 1;
+          cursor.setDate(cursor.getDate() - 1);
+        }
+        return streak;
+      }
+
+      function celebrate() {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const colors = ["#2563eb", "#16a34a", "#f59e0b", "#ec4899"];
+        for (let i = 0; i < 18; i++) {
+          const piece = document.createElement("span");
+          piece.className = "celebration-piece";
+          piece.style.left = `${48 + Math.random() * 4}%`;
+          piece.style.top = "38%";
+          piece.style.backgroundColor = colors[i % colors.length];
+          piece.style.setProperty("--x", `${(Math.random() - 0.5) * 320}px`);
+          piece.style.setProperty("--y", `${80 + Math.random() * 220}px`);
+          document.body.appendChild(piece);
+          piece.addEventListener("animationend", () => piece.remove());
+        }
+      }
+
+      function renderDailyPlanner() {
+        const dateKey = plannerDateInput.value || formatDateKey(new Date());
+        const items = [...(state.dailyPlans[dateKey] || [])].sort((a, b) => a.start.localeCompare(b.start));
+        const completed = items.filter((item) => item.completed).length;
+        const percent = items.length ? Math.round((completed / items.length) * 100) : 0;
+        const progressTrack = document.getElementById("plannerProgressTrack");
+        const rewardPanel = document.getElementById("rewardPanel");
+
+        document.getElementById("plannerProgressLabel").textContent = items.length ? `${completed} dari ${items.length} aktivitas selesai` : "Belum ada aktivitas";
+        document.getElementById("plannerProgressPercent").textContent = `${percent}%`;
+        progressTrack.setAttribute("aria-valuenow", String(percent));
+        document.getElementById("plannerProgressBar").style.width = `${percent}%`;
+        document.getElementById("rewardSubtitle").textContent = `${completed * 10} poin hari ini`;
+        document.getElementById("streakCount").textContent = calculateStreak();
+
+        let rewardTitle = "Mulai pelan-pelan";
+        if (percent === 100) rewardTitle = "Hari ini tuntas!";
+        else if (percent >= 75) rewardTitle = "Sedikit lagi";
+        else if (percent >= 40) rewardTitle = "Ritmemu terbentuk";
+        else if (percent > 0) rewardTitle = "Awal yang bagus";
+        document.getElementById("rewardTitle").textContent = rewardTitle;
+        rewardPanel.classList.toggle("reward-pop", percent === 100);
+
+        plannerList.replaceChildren();
+        if (!items.length) {
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500";
+          empty.textContent = "Belum ada rundown. Tambahkan aktivitas pertama dari bangun tidur sampai waktu istirahat.";
+          plannerList.appendChild(empty);
+          return;
+        }
+
+        items.forEach((item) => {
+          const row = document.createElement("li");
+          row.className = `flex items-start gap-3 rounded-lg border p-3 transition ${item.completed ? "border-green-200 bg-green-50" : "border-slate-200 bg-white"}`;
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = item.completed;
+          checkbox.className = "planner-check mt-1 h-6 w-6 shrink-0 cursor-pointer";
+          checkbox.setAttribute("aria-label", `Tandai ${item.activity} selesai`);
+          checkbox.addEventListener("change", () => {
+            const plans = state.dailyPlans[dateKey] || [];
+            const target = plans.find((plan) => plan.id === item.id);
+            if (!target) return;
+            const wasPerfect = plans.length > 0 && plans.every((plan) => plan.completed);
+            target.completed = checkbox.checked;
+            saveDailyPlans();
+            const isPerfect = plans.every((plan) => plan.completed);
+            renderDailyPlanner();
+            renderCalendar();
+            if (!wasPerfect && isPerfect) celebrate();
+          });
+
+          const content = document.createElement("div");
+          content.className = "min-w-0 flex-1";
+          const heading = document.createElement("div");
+          heading.className = "flex flex-wrap items-baseline gap-x-3 gap-y-1";
+          const time = document.createElement("span");
+          time.className = "rounded bg-blue-100 px-2 py-1 text-xs font-bold tabular-nums text-blue-700";
+          time.textContent = `${item.start}-${item.end}`;
+          const title = document.createElement("p");
+          title.className = `font-semibold text-slate-800 ${item.completed ? "line-through opacity-60" : ""}`;
+          title.textContent = item.activity;
+          heading.append(time, title);
+          content.appendChild(heading);
+          if (item.detail) {
+            const detail = document.createElement("p");
+            detail.className = "mt-1 text-sm text-slate-500";
+            detail.textContent = item.detail;
+            content.appendChild(detail);
+          }
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "min-h-11 shrink-0 rounded-lg px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200";
+          remove.textContent = "Hapus";
+          remove.addEventListener("click", () => {
+            state.dailyPlans[dateKey] = (state.dailyPlans[dateKey] || []).filter((plan) => plan.id !== item.id);
+            if (!state.dailyPlans[dateKey].length) delete state.dailyPlans[dateKey];
+            saveDailyPlans();
+            renderDailyPlanner();
+            renderCalendar();
+          });
+
+          row.append(checkbox, content, remove);
+          plannerList.appendChild(row);
+        });
       }
 
       function renderTaskEditor(selectedDate) {
@@ -442,10 +769,37 @@
         });
       }
 
+      function renderHolidayMonthList(year, month) {
+        const monthPrefix = `${year}-${String(month + 1).padStart(2, "0")}`;
+        const holidays = Object.entries(nationalHolidays).filter(([date]) => date.startsWith(monthPrefix));
+        holidayMonthList.replaceChildren();
+
+        if (!holidays.length) {
+          const empty = document.createElement("li");
+          empty.className = "text-slate-500";
+          empty.textContent = "Tidak ada hari libur nasional pada bulan ini.";
+          holidayMonthList.appendChild(empty);
+          return;
+        }
+
+        holidays.forEach(([date, holiday]) => {
+          const item = document.createElement("li");
+          item.className = "flex items-start gap-2 rounded-lg bg-slate-50 px-3 py-2";
+          const marker = document.createElement("span");
+          marker.className = `mt-1.5 h-2 w-2 shrink-0 rounded-full ${holiday.type === "joint" ? "bg-amber-500" : "bg-red-500"}`;
+          const text = document.createElement("span");
+          const day = Number(date.slice(-2));
+          text.innerHTML = `<strong class="text-slate-800">${day} ${monthNames[month]}</strong> <span class="text-slate-600">${holiday.name}</span>`;
+          item.append(marker, text);
+          holidayMonthList.appendChild(item);
+        });
+      }
+
       function renderCalendar() {
         const year = currentMonth.getFullYear();
         const month = currentMonth.getMonth();
         monthTitle.textContent = `${monthNames[month]} ${year}`;
+        renderHolidayMonthList(year, month);
 
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -479,16 +833,23 @@
 
           const dateKey = formatDateKey(cell.date);
           const tasks = state.personalTasks[dateKey] || [];
+          const holiday = nationalHolidays[dateKey];
+          const dailyPlans = state.dailyPlans[dateKey] || [];
+          const dailyCompleted = dailyPlans.filter((item) => item.completed).length;
 
           const cellEl = document.createElement("div");
           cellEl.className = `calendar-cell border-b border-r border-slate-200 p-2 ${
-            cell.muted ? "bg-slate-50 text-slate-400" : "bg-white"
+            cell.muted ? "bg-slate-50 text-slate-400" : holiday ? "bg-red-50/40" : "bg-white"
           }`;
 
           cellEl.innerHTML = `
             <div class="mb-1 flex items-center justify-between">
-              <span class="text-sm font-semibold ${isSunday && !cell.muted ? "text-red-500" : ""} ${
-                isToday ? "rounded-md bg-blue-500 px-2 py-0.5 text-white" : ""
+              <span class="text-sm font-semibold ${holiday && !cell.muted ? "text-red-600" : isSunday && !cell.muted ? "text-red-500" : ""} ${
+                isToday
+                  ? holiday
+                    ? "rounded-md bg-red-50 px-2 py-0.5 text-red-700 ring-2 ring-red-400"
+                    : "rounded-md bg-blue-500 px-2 py-0.5 text-white"
+                  : ""
               }">${cell.day}</span>
               ${
                 !cell.muted
@@ -500,9 +861,30 @@
           `;
 
           const badgeContainer = cellEl.querySelector(".space-y-1");
+          if (holiday) {
+            const holidayBadge = document.createElement("span");
+            holidayBadge.className = `holiday-badge rounded px-1 py-0.5 text-[10px] font-semibold leading-tight sm:px-2 ${holiday.type === "joint" ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-700"}`;
+            holidayBadge.textContent = holiday.name;
+            holidayBadge.title = holiday.name;
+            badgeContainer.appendChild(holidayBadge);
+          }
+
+          if (dailyPlans.length) {
+            const progressBadge = document.createElement("button");
+            progressBadge.type = "button";
+            progressBadge.className = `daily-progress-badge block w-full rounded px-2 py-0.5 text-left text-[10px] font-semibold ${dailyCompleted === dailyPlans.length ? "bg-green-100 text-green-700" : "bg-violet-100 text-violet-700"}`;
+            progressBadge.textContent = `${dailyCompleted}/${dailyPlans.length} rundown`;
+            progressBadge.addEventListener("click", () => {
+              plannerDateInput.value = dateKey;
+              renderDailyPlanner();
+              document.getElementById("rundown").scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            badgeContainer.appendChild(progressBadge);
+          }
+
           tasks.slice(0, 3).forEach((task) => {
             const badge = document.createElement("span");
-            badge.className = "block truncate rounded bg-blue-100 px-2 py-0.5 text-[10px] text-blue-700";
+            badge.className = "task-badge block truncate rounded bg-blue-100 px-2 py-0.5 text-[10px] text-blue-700";
             badge.textContent = task;
             badgeContainer.appendChild(badge);
           });
@@ -739,6 +1121,41 @@
         renderCalendar();
       });
 
+      plannerDateInput.value = formatDateKey(new Date());
+      plannerDateInput.addEventListener("change", renderDailyPlanner);
+
+      document.getElementById("plannerForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const dateKey = plannerDateInput.value;
+        const start = document.getElementById("plannerStart").value;
+        const end = document.getElementById("plannerEnd").value;
+        const activity = document.getElementById("plannerActivity").value.trim();
+        const detail = document.getElementById("plannerDetail").value.trim();
+        const formError = document.getElementById("plannerFormError");
+        if (!dateKey || !start || !end || !activity) return;
+        if (end <= start) {
+          formError.textContent = "Jam selesai harus lebih akhir dari jam mulai.";
+          formError.classList.remove("hidden");
+          document.getElementById("plannerEnd").focus();
+          return;
+        }
+        formError.classList.add("hidden");
+
+        if (!state.dailyPlans[dateKey]) state.dailyPlans[dateKey] = [];
+        state.dailyPlans[dateKey].push({
+          id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          start,
+          end,
+          activity,
+          detail,
+          completed: false,
+        });
+        saveDailyPlans();
+        e.target.reset();
+        renderDailyPlanner();
+        renderCalendar();
+      });
+
       document.getElementById("openAdminBtn").addEventListener("click", () => openModal("loginModal"));
       document.getElementById("topAddTaskBtn").addEventListener("click", () => {
         const today = formatDateKey(new Date());
@@ -747,6 +1164,12 @@
         openModal("taskModal");
       });
       document.getElementById("sidebarAddTaskBtn").addEventListener("click", () => {
+        const today = formatDateKey(new Date());
+        taskDateInput.value = today;
+        renderTaskEditor(today);
+        openModal("taskModal");
+      });
+      document.getElementById("mobileAddTaskBtn").addEventListener("click", () => {
         const today = formatDateKey(new Date());
         taskDateInput.value = today;
         renderTaskEditor(today);
@@ -857,11 +1280,13 @@
       });
 
       renderCalendar();
+      renderDailyPlanner();
       renderEvents();
       document.getElementById("scheduleDay").value = dayMap[new Date().getDay()];
       renderTodaySchedule();
       renderAnnouncements();
       initFirebase();
+      if (window.lucide) window.lucide.createIcons();
     </script>
   </body>
 </html>
