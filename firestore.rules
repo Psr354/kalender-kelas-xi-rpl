@@ -1,0 +1,86 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function validUserData() {
+      return request.resource.data.keys().hasOnly([
+        'personalTasks',
+        'dailyPlans',
+        'dailyNotes',
+        'dataVersion',
+        'updatedAt'
+      ])
+      && (!('personalTasks' in request.resource.data) || request.resource.data.personalTasks is map)
+      && (!('dailyPlans' in request.resource.data) || request.resource.data.dailyPlans is map)
+      && (!('dailyNotes' in request.resource.data) || request.resource.data.dailyNotes is map)
+      && request.resource.data.dataVersion is int
+      && request.resource.data.dataVersion >= 0
+      && request.resource.data.updatedAt is timestamp
+      && (!('personalTasks' in request.resource.data) || request.resource.data.personalTasks.size() <= 370)
+      && (!('dailyPlans' in request.resource.data) || request.resource.data.dailyPlans.size() <= 370)
+      && (!('dailyNotes' in request.resource.data) || request.resource.data.dailyNotes.size() <= 370);
+    }
+
+    match /userData/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && validUserData();
+      allow delete: if false;
+    }
+
+    match /admins/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false;
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['date', 'title', 'createdAt'])
+        && request.resource.data.date is string
+        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.createdAt is timestamp;
+      allow delete: if isAdmin();
+    }
+
+    match /schedule/{dayId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && dayId in ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu']
+        && request.resource.data.keys().hasOnly(['lessons'])
+        && request.resource.data.lessons is list
+        && request.resource.data.lessons.size() <= 30;
+      allow delete: if isAdmin();
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['text', 'createdAt'])
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 300
+        && request.resource.data.createdAt is timestamp;
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

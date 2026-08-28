@@ -51,6 +51,10 @@
         -webkit-line-clamp: 2;
       }
 
+      .note-card {
+        overflow-wrap: anywhere;
+      }
+
       button,
       a,
       input,
@@ -117,6 +121,10 @@
         .daily-progress-badge {
           display: none;
         }
+
+        .daily-note-badge {
+          display: none;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -145,8 +153,8 @@
         </div>
 
         <nav class="hidden items-center gap-6 text-sm font-medium md:flex">
-          <a href="#" class="hover:opacity-90">Kalender</a>
-          <a href="#" class="hover:opacity-90">Jadwal Kelas</a>
+          <a href="#kalender" class="hover:opacity-90">Kalender</a>
+          <a href="#jadwal" class="hover:opacity-90">Jadwal Kelas</a>
           <a href="#rundown" class="hover:opacity-90">Rundown Harian</a>
           <a href="#pengingat" class="hover:opacity-90">Pengingat</a>
           <button
@@ -285,6 +293,52 @@
 
         <aside class="space-y-5 lg:order-3 lg:col-span-3">
           <article class="card-soft p-4 sm:p-5">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h3 class="text-sm font-bold tracking-wide text-slate-700">CATATAN HARIAN</h3>
+              </div>
+              <input
+                id="dailyNoteDate"
+                type="date"
+                class="min-h-10 rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                aria-label="Tanggal catatan harian"
+              />
+            </div>
+
+            <form id="dailyNoteForm" class="space-y-3">
+              <div class="grid grid-cols-2 gap-2">
+                <label class="flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 text-xs font-semibold text-slate-700">
+                  <input class="accent-red-600" type="radio" name="dailyNoteType" value="Masalah" checked />
+                  Masalah
+                </label>
+                <label class="flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 text-xs font-semibold text-slate-700">
+                  <input class="accent-blue-600" type="radio" name="dailyNoteType" value="Ide" />
+                  Ide
+                </label>
+              </div>
+              <textarea
+                id="dailyNoteText"
+                rows="4"
+                maxlength="360"
+                placeholder="Tulis catatan hari ini..."
+                class="w-full resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                required
+              ></textarea>
+              <button
+                class="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[color:var(--brand-blue)] px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                type="submit"
+              >
+                <i data-lucide="message-square-plus" class="h-4 w-4" aria-hidden="true"></i>
+                Simpan catatan
+              </button>
+            </form>
+
+            <ul id="dailyNoteList" class="mt-4 max-h-80 space-y-2 overflow-auto text-sm">
+              <li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada catatan hari ini.</li>
+            </ul>
+          </article>
+
+          <article class="card-soft p-4 sm:p-5">
             <div class="mb-3 flex items-center justify-between">
               <h3 class="text-sm font-bold tracking-wide text-slate-700">ACARA MENDATANG</h3>
               <button
@@ -346,26 +400,31 @@
       <button
         id="openAdminBtn"
         class="fixed bottom-3 right-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-700 text-xs text-white opacity-80 shadow-md transition hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-300"
-        title="Admin Login"
-        aria-label="Admin Login"
+        title="Login"
+        aria-label="Login"
       >
-        <i data-lucide="settings" class="h-5 w-5" aria-hidden="true"></i>
+        <i data-lucide="user" class="h-5 w-5" aria-hidden="true"></i>
       </button>
     </footer>
 
-    <!-- Modal Login Admin -->
+    <!-- Modal Login -->
     <div id="loginModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-4">
       <div class="card-soft w-full max-w-sm p-5">
         <div class="mb-4 flex items-center justify-between">
-          <h4 class="text-base font-semibold">Login Admin</h4>
+          <div>
+            <p class="text-xs font-semibold text-blue-600">Sinkron data pribadi</p>
+            <h4 class="text-base font-semibold">Login</h4>
+          </div>
           <button class="closeModal rounded bg-slate-100 px-2 py-1 text-xs">Tutup</button>
         </div>
-        <form id="loginForm" class="space-y-3">
-          <input id="adminEmail" type="email" placeholder="Email" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
-          <input id="adminPassword" type="password" placeholder="Password" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
-          <button class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">Login</button>
-          <p id="loginMsg" class="text-center text-xs text-slate-500"></p>
+        <form id="userAccountForm" class="space-y-3">
+          <input id="userEmail" type="email" autocomplete="email" placeholder="Email" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <input id="userPassword" type="password" autocomplete="current-password" placeholder="Password" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <button id="userLoginBtn" class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700" type="submit">Login</button>
         </form>
+        <button id="userLogoutBtn" class="hidden w-full rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200" type="button">Logout</button>
+        <p id="userAccountMsg" class="mt-3 text-xs text-slate-500">Login dengan akun yang sudah dibuat di Firebase.</p>
+        <p id="syncStatus" class="mt-2 text-xs font-medium text-slate-500" role="status" aria-live="polite"></p>
       </div>
     </div>
 
@@ -378,7 +437,7 @@
         </div>
         <form id="taskForm" class="space-y-3">
           <input id="taskDate" type="date" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
-          <input id="taskTitle" type="text" placeholder="Contoh: Kerjakan PR Matematika" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <input id="taskTitle" type="text" maxlength="120" placeholder="Contoh: Kerjakan PR Matematika" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
           <button class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">Simpan Tugas</button>
         </form>
         <div class="mt-4">
@@ -399,7 +458,7 @@
         </div>
         <form id="eventForm" class="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <input id="eventDate" type="date" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
-          <input id="eventTitle" type="text" placeholder="Nama acara" class="rounded-lg border border-slate-300 px-3 py-2 text-sm sm:col-span-2" required />
+          <input id="eventTitle" type="text" maxlength="120" placeholder="Nama acara" class="rounded-lg border border-slate-300 px-3 py-2 text-sm sm:col-span-2" required />
           <button class="rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white sm:col-span-3">Tambah Acara</button>
         </form>
         <ul id="eventsEditorList" class="mt-4 max-h-56 space-y-2 overflow-auto text-sm"></ul>
@@ -424,9 +483,9 @@
             <option value="jumat">Jumat</option>
             <option value="sabtu">Sabtu</option>
           </select>
-          <input id="scheduleTeacher" type="text" placeholder="Guru" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          <input id="scheduleTime" type="text" placeholder="Waktu (07:00 - 08:30)" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-          <input id="scheduleSubject" type="text" placeholder="Mata pelajaran" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <input id="scheduleTeacher" type="text" maxlength="80" placeholder="Guru" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <input id="scheduleTime" type="text" maxlength="40" placeholder="Waktu (07:00 - 08:30)" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <input id="scheduleSubject" type="text" maxlength="100" placeholder="Mata pelajaran" class="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
         </div>
 
         <button id="addScheduleItemBtn" class="mb-3 rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">
@@ -445,7 +504,7 @@
           <button class="closeModal rounded bg-slate-100 px-2 py-1 text-xs">Tutup</button>
         </div>
         <form id="announcementForm" class="space-y-2">
-          <input id="announcementText" type="text" placeholder="Isi pengingat" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
+          <input id="announcementText" type="text" maxlength="300" placeholder="Isi pengingat" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
           <button class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">Tambah Pengingat</button>
         </form>
         <ul id="announcementEditorList" class="mt-4 max-h-56 space-y-2 overflow-auto text-sm"></ul>
@@ -472,6 +531,7 @@
         query,
         orderBy,
         serverTimestamp,
+        runTransaction,
       } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
       // ==========================================================
@@ -544,23 +604,30 @@
       let isAdmin = false;
       let auth = null;
       let db = null;
+      let currentUser = null;
+      let userDataUnsubscribe = null;
+      let isLoadingUserData = false;
 
-      const now = new Date();
+      let now = new Date();
+      let activeStorageOwner = "guest";
+      let personalDataVersion = 0;
       let currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      document.getElementById("currentDateLabel").textContent = new Intl.DateTimeFormat("id-ID", {
+      const currentDateFormatter = new Intl.DateTimeFormat("id-ID", {
         weekday: "long",
         day: "numeric",
         month: "long",
         year: "numeric",
-      }).format(now);
+      });
+      document.getElementById("currentDateLabel").textContent = currentDateFormatter.format(now);
 
       const state = {
         events: [],
         schedule: {},
         announcements: [],
-        personalTasks: JSON.parse(localStorage.getItem("personalTasks") || "{}"),
-        dailyPlans: JSON.parse(localStorage.getItem("dailyPlans") || "{}"),
+        personalTasks: readStoredMap("personalTasks"),
+        dailyPlans: readStoredMap("dailyPlans"),
+        dailyNotes: readStoredMap("dailyNotes"),
       };
 
       const monthTitle = document.getElementById("monthTitle");
@@ -569,12 +636,17 @@
       const todayScheduleTable = document.getElementById("todayScheduleTable");
       const todayScheduleLabel = document.getElementById("todayScheduleLabel");
       const announcementList = document.getElementById("announcementList");
-      const loginMsg = document.getElementById("loginMsg");
       const taskDateInput = document.getElementById("taskDate");
       const taskEditorList = document.getElementById("taskEditorList");
       const plannerDateInput = document.getElementById("plannerDate");
       const plannerList = document.getElementById("plannerList");
       const holidayMonthList = document.getElementById("holidayMonthList");
+      const dailyNoteDateInput = document.getElementById("dailyNoteDate");
+      const dailyNoteList = document.getElementById("dailyNoteList");
+      const userAccountForm = document.getElementById("userAccountForm");
+      const userLogoutBtn = document.getElementById("userLogoutBtn");
+      const userAccountMsg = document.getElementById("userAccountMsg");
+      const syncStatus = document.getElementById("syncStatus");
 
       const allModals = ["loginModal", "taskModal", "eventsModal", "scheduleModal", "announcementsModal"];
 
@@ -599,12 +671,215 @@
         return `${year}-${month}-${day}`;
       }
 
+      function refreshForDateChange() {
+        const previousToday = formatDateKey(now);
+        const freshNow = new Date();
+        const freshToday = formatDateKey(freshNow);
+        if (freshToday === previousToday) return;
+
+        now = freshNow;
+        document.getElementById("currentDateLabel").textContent = currentDateFormatter.format(now);
+        if (plannerDateInput.value === previousToday) plannerDateInput.value = freshToday;
+        if (dailyNoteDateInput.value === previousToday) dailyNoteDateInput.value = freshToday;
+        document.getElementById("scheduleDay").value = dayMap[now.getDay()];
+        renderCalendar();
+        renderDailyPlanner();
+        renderDailyNotes();
+        renderTodaySchedule();
+        renderEvents();
+      }
+
+      function storageKey(key, owner = activeStorageOwner) {
+        return `psr354:${owner}:${key}`;
+      }
+
+      function readStoredMap(key, owner = activeStorageOwner) {
+        try {
+          const scopedKey = storageKey(key, owner);
+          let raw = localStorage.getItem(scopedKey);
+          if (raw === null && owner === "guest") {
+            raw = localStorage.getItem(key);
+            if (raw !== null) localStorage.setItem(scopedKey, raw);
+          }
+          const parsed = JSON.parse(raw || "{}");
+          return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+        } catch (err) {
+          console.warn(`Data ${key} di penyimpanan lokal rusak, memakai data kosong.`, err);
+          return {};
+        }
+      }
+
+      function writeStoredMap(key, value, owner = activeStorageOwner) {
+        try {
+          localStorage.setItem(storageKey(key, owner), JSON.stringify(value && typeof value === "object" ? value : {}));
+          return true;
+        } catch (err) {
+          console.warn(`Data ${key} gagal disimpan di penyimpanan lokal.`, err);
+          if (userAccountMsg) userAccountMsg.textContent = "Data belum bisa disimpan di perangkat ini. Cek izin penyimpanan browser.";
+          return false;
+        }
+      }
+
+      function readDataVersion(owner = activeStorageOwner) {
+        try {
+          const value = Number(localStorage.getItem(storageKey("dataVersion", owner)) || 0);
+          return Number.isSafeInteger(value) && value >= 0 ? value : 0;
+        } catch (err) {
+          console.warn("Versi data lokal tidak dapat dibaca.", err);
+          return 0;
+        }
+      }
+
+      function persistPersonalData() {
+        writeStoredMap("personalTasks", state.personalTasks);
+        writeStoredMap("dailyPlans", state.dailyPlans);
+        writeStoredMap("dailyNotes", state.dailyNotes);
+        try {
+          localStorage.setItem(storageKey("dataVersion"), String(personalDataVersion));
+        } catch (err) {
+          console.warn("Versi data lokal tidak dapat disimpan.", err);
+        }
+      }
+
+      function loadPersonalData(owner) {
+        activeStorageOwner = owner;
+        state.personalTasks = readStoredMap("personalTasks", owner);
+        state.dailyPlans = readStoredMap("dailyPlans", owner);
+        state.dailyNotes = readStoredMap("dailyNotes", owner);
+        personalDataVersion = readDataVersion(owner);
+      }
+
+      function hasPersonalData(data) {
+        return [data.personalTasks, data.dailyPlans, data.dailyNotes].some(
+          (collection) => collection && Object.values(collection).some((items) => Array.isArray(items) && items.length)
+        );
+      }
+
+      function readPersonalData(owner) {
+        return {
+          personalTasks: readStoredMap("personalTasks", owner),
+          dailyPlans: readStoredMap("dailyPlans", owner),
+          dailyNotes: readStoredMap("dailyNotes", owner),
+          dataVersion: readDataVersion(owner),
+        };
+      }
+
+      function adoptGuestDataWhenAccountIsEmpty(guestData, remoteData = {}) {
+        const accountData = {
+          personalTasks: state.personalTasks,
+          dailyPlans: state.dailyPlans,
+          dailyNotes: state.dailyNotes,
+        };
+        if (!hasPersonalData(guestData) || hasPersonalData(accountData) || hasPersonalData(remoteData)) return false;
+
+        state.personalTasks = guestData.personalTasks;
+        state.dailyPlans = guestData.dailyPlans;
+        state.dailyNotes = guestData.dailyNotes;
+        personalDataVersion = Math.max(Date.now(), Number(guestData.dataVersion || 0));
+        persistPersonalData();
+        return true;
+      }
+
+      function markPersonalDataChanged() {
+        personalDataVersion = Math.max(Date.now(), personalDataVersion + 1);
+      }
+
       function savePersonalTasks() {
-        localStorage.setItem("personalTasks", JSON.stringify(state.personalTasks));
+        markPersonalDataChanged();
+        persistPersonalData();
+        saveUserData();
       }
 
       function saveDailyPlans() {
-        localStorage.setItem("dailyPlans", JSON.stringify(state.dailyPlans));
+        markPersonalDataChanged();
+        persistPersonalData();
+        saveUserData();
+      }
+
+      function saveDailyNotes() {
+        markPersonalDataChanged();
+        persistPersonalData();
+        saveUserData();
+      }
+
+      async function saveUserData() {
+        if (!db || !currentUser || isLoadingUserData) return;
+        try {
+          await setDoc(
+            doc(db, "userData", currentUser.uid),
+            {
+              personalTasks: state.personalTasks,
+              dailyPlans: state.dailyPlans,
+              dailyNotes: state.dailyNotes,
+              dataVersion: personalDataVersion,
+              updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+          );
+        } catch (err) {
+          console.warn("Sinkron data pribadi gagal. Data tetap tersimpan di browser.", err);
+          syncStatus.textContent = "Tersimpan di perangkat; sinkronisasi sedang tertunda.";
+        }
+      }
+
+      function mergePersonalData(remote = {}) {
+        const remoteVersion = Number(remote.dataVersion || 0);
+        if (remoteVersion >= personalDataVersion) {
+          state.personalTasks = remote.personalTasks || {};
+          state.dailyPlans = remote.dailyPlans || {};
+          state.dailyNotes = remote.dailyNotes || {};
+          personalDataVersion = remoteVersion;
+          persistPersonalData();
+          return "remote";
+        }
+        return "local";
+      }
+
+      function renderDailyNotes() {
+        const dateKey = dailyNoteDateInput.value || formatDateKey(new Date());
+        const notes = state.dailyNotes[dateKey] || [];
+
+        dailyNoteList.replaceChildren();
+        if (!notes.length) {
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg bg-slate-50 p-3 text-slate-500";
+          empty.textContent = "Belum ada catatan hari ini.";
+          dailyNoteList.appendChild(empty);
+          return;
+        }
+
+        notes.forEach((note) => {
+          const item = document.createElement("li");
+          item.className = "note-card rounded-lg border border-slate-200 bg-white p-3";
+
+          const header = document.createElement("div");
+          header.className = "mb-2 flex items-center justify-between gap-2";
+
+          const type = note.type === "Ide" ? "Ide" : "Masalah";
+          const typeBadge = document.createElement("span");
+          typeBadge.className = `rounded px-2 py-1 text-[10px] font-bold uppercase ${type === "Ide" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"}`;
+          typeBadge.textContent = type;
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "rounded-lg px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50";
+          remove.textContent = "Hapus";
+          remove.addEventListener("click", () => {
+            state.dailyNotes[dateKey] = (state.dailyNotes[dateKey] || []).filter((entry) => entry.id !== note.id);
+            if (!state.dailyNotes[dateKey].length) delete state.dailyNotes[dateKey];
+            saveDailyNotes();
+            renderDailyNotes();
+            renderCalendar();
+          });
+
+          const text = document.createElement("p");
+          text.className = "whitespace-pre-wrap text-sm leading-relaxed text-slate-700";
+          text.textContent = note.text;
+
+          header.append(typeBadge, remove);
+          item.append(header, text);
+          dailyNoteList.appendChild(item);
+        });
       }
 
       function calculateStreak() {
@@ -730,42 +1005,47 @@
 
       function renderTaskEditor(selectedDate) {
         const dateKey = selectedDate || taskDateInput.value;
+        taskEditorList.replaceChildren();
         if (!dateKey) {
-          taskEditorList.innerHTML = '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Pilih tanggal untuk melihat tugas.</li>';
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg bg-slate-50 p-3 text-slate-500";
+          empty.textContent = "Pilih tanggal untuk melihat tugas.";
+          taskEditorList.appendChild(empty);
           return;
         }
 
         const tasks = state.personalTasks[dateKey] || [];
-        taskEditorList.innerHTML = tasks.length
-          ? tasks
-              .map(
-                (task, index) => `
-              <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2">
-                <span class="truncate">${task}</span>
-                <button data-date="${dateKey}" data-index="${index}" class="deleteTask rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">Hapus</button>
-              </li>
-            `
-              )
-              .join("")
-          : '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada tugas.</li>';
+        if (!tasks.length) {
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg bg-slate-50 p-3 text-slate-500";
+          empty.textContent = "Belum ada tugas.";
+          taskEditorList.appendChild(empty);
+          return;
+        }
 
-        document.querySelectorAll(".deleteTask").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const date = btn.dataset.date;
-            const index = Number(btn.dataset.index);
-            const items = state.personalTasks[date] || [];
-            const updated = items.filter((_, i) => i !== index);
+        tasks.forEach((task, index) => {
+          const item = document.createElement("li");
+          item.className = "flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2";
 
-            if (updated.length) {
-              state.personalTasks[date] = updated;
-            } else {
-              delete state.personalTasks[date];
-            }
+          const title = document.createElement("span");
+          title.className = "truncate";
+          title.textContent = task;
 
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600";
+          remove.textContent = "Hapus";
+          remove.addEventListener("click", () => {
+            const updated = (state.personalTasks[dateKey] || []).filter((_, i) => i !== index);
+            if (updated.length) state.personalTasks[dateKey] = updated;
+            else delete state.personalTasks[dateKey];
             savePersonalTasks();
             renderCalendar();
-            renderTaskEditor(date);
+            renderTaskEditor(dateKey);
           });
+
+          item.append(title, remove);
+          taskEditorList.appendChild(item);
         });
       }
 
@@ -777,7 +1057,9 @@
         if (!holidays.length) {
           const empty = document.createElement("li");
           empty.className = "text-slate-500";
-          empty.textContent = "Tidak ada hari libur nasional pada bulan ini.";
+          empty.textContent = year === 2026
+            ? "Tidak ada hari libur nasional pada bulan ini."
+            : "Data hari libur hanya tersedia untuk tahun 2026.";
           holidayMonthList.appendChild(empty);
           return;
         }
@@ -789,7 +1071,13 @@
           marker.className = `mt-1.5 h-2 w-2 shrink-0 rounded-full ${holiday.type === "joint" ? "bg-amber-500" : "bg-red-500"}`;
           const text = document.createElement("span");
           const day = Number(date.slice(-2));
-          text.innerHTML = `<strong class="text-slate-800">${day} ${monthNames[month]}</strong> <span class="text-slate-600">${holiday.name}</span>`;
+          const dateText = document.createElement("strong");
+          dateText.className = "text-slate-800";
+          dateText.textContent = `${day} ${monthNames[month]}`;
+          const nameText = document.createElement("span");
+          nameText.className = "text-slate-600";
+          nameText.textContent = ` ${holiday.name}`;
+          text.append(dateText, nameText);
           item.append(marker, text);
           holidayMonthList.appendChild(item);
         });
@@ -821,7 +1109,7 @@
           cells.push({ day: nextDay, muted: true, date: new Date(year, month + 1, nextDay) });
         }
 
-        calendarGrid.innerHTML = "";
+        calendarGrid.replaceChildren();
 
         cells.forEach((cell, index) => {
           const dayIndex = index % 7;
@@ -835,6 +1123,7 @@
           const tasks = state.personalTasks[dateKey] || [];
           const holiday = nationalHolidays[dateKey];
           const dailyPlans = state.dailyPlans[dateKey] || [];
+          const dailyNotes = state.dailyNotes[dateKey] || [];
           const dailyCompleted = dailyPlans.filter((item) => item.completed).length;
 
           const cellEl = document.createElement("div");
@@ -842,25 +1131,33 @@
             cell.muted ? "bg-slate-50 text-slate-400" : holiday ? "bg-red-50/40" : "bg-white"
           }`;
 
-          cellEl.innerHTML = `
-            <div class="mb-1 flex items-center justify-between">
-              <span class="text-sm font-semibold ${holiday && !cell.muted ? "text-red-600" : isSunday && !cell.muted ? "text-red-500" : ""} ${
-                isToday
-                  ? holiday
-                    ? "rounded-md bg-red-50 px-2 py-0.5 text-red-700 ring-2 ring-red-400"
-                    : "rounded-md bg-blue-500 px-2 py-0.5 text-white"
-                  : ""
-              }">${cell.day}</span>
-              ${
-                !cell.muted
-                  ? `<button data-date="${dateKey}" class="quickAddTask text-[10px] text-blue-500 hover:underline">+ tugas</button>`
-                  : ""
-              }
-            </div>
-            <div class="space-y-1"></div>
-          `;
+          const header = document.createElement("div");
+          header.className = "mb-1 flex items-center justify-between";
 
-          const badgeContainer = cellEl.querySelector(".space-y-1");
+          const dayLabel = document.createElement("span");
+          dayLabel.className = `text-sm font-semibold ${holiday && !cell.muted ? "text-red-600" : isSunday && !cell.muted ? "text-red-500" : ""} ${
+            isToday
+              ? holiday
+                ? "rounded-md bg-red-50 px-2 py-0.5 text-red-700 ring-2 ring-red-400"
+                : "rounded-md bg-blue-500 px-2 py-0.5 text-white"
+              : ""
+          }`;
+          dayLabel.textContent = cell.day;
+          header.appendChild(dayLabel);
+
+          if (!cell.muted) {
+            const quickAdd = document.createElement("button");
+            quickAdd.type = "button";
+            quickAdd.dataset.date = dateKey;
+            quickAdd.className = "quickAddTask text-[10px] text-blue-500 hover:underline";
+            quickAdd.textContent = "+ tugas";
+            header.appendChild(quickAdd);
+          }
+
+          const badgeContainer = document.createElement("div");
+          badgeContainer.className = "space-y-1";
+          cellEl.append(header, badgeContainer);
+
           if (holiday) {
             const holidayBadge = document.createElement("span");
             holidayBadge.className = `holiday-badge rounded px-1 py-0.5 text-[10px] font-semibold leading-tight sm:px-2 ${holiday.type === "joint" ? "bg-amber-100 text-amber-800" : "bg-red-100 text-red-700"}`;
@@ -880,6 +1177,19 @@
               document.getElementById("rundown").scrollIntoView({ behavior: "smooth", block: "start" });
             });
             badgeContainer.appendChild(progressBadge);
+          }
+
+          if (dailyNotes.length) {
+            const noteBadge = document.createElement("button");
+            noteBadge.type = "button";
+            noteBadge.className = "daily-note-badge block w-full rounded bg-amber-100 px-2 py-0.5 text-left text-[10px] font-semibold text-amber-700";
+            noteBadge.textContent = `${dailyNotes.length} catatan`;
+            noteBadge.addEventListener("click", () => {
+              dailyNoteDateInput.value = dateKey;
+              renderDailyNotes();
+              dailyNoteList.closest("article").scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+            badgeContainer.appendChild(noteBadge);
           }
 
           tasks.slice(0, 3).forEach((task) => {
@@ -909,45 +1219,62 @@
       }
 
       function renderEvents() {
-        if (!state.events.length) {
-          eventsList.innerHTML = '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada acara.</li>';
+        eventsList.replaceChildren();
+        const todayKey = formatDateKey(new Date());
+        const upcomingEvents = state.events.filter((event) => event.date >= todayKey).slice(0, 8);
+        if (!upcomingEvents.length) {
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg bg-slate-50 p-3 text-slate-500";
+          empty.textContent = "Belum ada acara mendatang.";
+          eventsList.appendChild(empty);
         } else {
-          eventsList.innerHTML = state.events
-            .slice(0, 8)
-            .map(
-              (event) => `
-              <li class="rounded-lg border border-slate-200 p-3">
-                <p class="text-xs font-semibold text-blue-600">${event.date || "Tanpa tanggal"}</p>
-                <p class="mt-1 text-sm font-medium text-slate-700">${event.title || "(Tanpa judul)"}</p>
-              </li>
-            `
-            )
-            .join("");
+          upcomingEvents.forEach((event) => {
+            const item = document.createElement("li");
+            item.className = "rounded-lg border border-slate-200 p-3";
+            const date = document.createElement("p");
+            date.className = "text-xs font-semibold text-blue-600";
+            date.textContent = event.date || "Tanpa tanggal";
+            const title = document.createElement("p");
+            title.className = "mt-1 text-sm font-medium text-slate-700";
+            title.textContent = event.title || "(Tanpa judul)";
+            item.append(date, title);
+            eventsList.appendChild(item);
+          });
         }
 
         const editor = document.getElementById("eventsEditorList");
-        editor.innerHTML = state.events.length
-          ? state.events
-              .map(
-                (event) => `
-            <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2">
-              <div>
-                <p class="text-xs text-blue-600">${event.date || "Tanpa tanggal"}</p>
-                <p class="font-medium">${event.title || "(Tanpa judul)"}</p>
-              </div>
-              <button data-id="${event.id}" class="deleteEvent rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">Hapus</button>
-            </li>
-          `
-              )
-              .join("")
-          : '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada data acara.</li>';
+        editor.replaceChildren();
+        if (!state.events.length) {
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg bg-slate-50 p-3 text-slate-500";
+          empty.textContent = "Belum ada data acara.";
+          editor.appendChild(empty);
+        } else {
+          state.events.forEach((event) => {
+            const item = document.createElement("li");
+            item.className = "flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2";
+            const content = document.createElement("div");
+            const date = document.createElement("p");
+            date.className = "text-xs text-blue-600";
+            date.textContent = event.date || "Tanpa tanggal";
+            const title = document.createElement("p");
+            title.className = "font-medium";
+            title.textContent = event.title || "(Tanpa judul)";
+            content.append(date, title);
 
-        document.querySelectorAll(".deleteEvent").forEach((btn) => {
-          btn.addEventListener("click", async () => {
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600";
+            remove.textContent = "Hapus";
+            remove.addEventListener("click", async () => {
             if (!db || !isAdmin) return;
-            await deleteDoc(doc(db, "events", btn.dataset.id));
+              await deleteDoc(doc(db, "events", event.id));
+            });
+
+            item.append(content, remove);
+            editor.appendChild(item);
           });
-        });
+        }
       }
 
       function renderTodaySchedule() {
@@ -955,25 +1282,27 @@
         todayScheduleLabel.textContent = `Hari ini: ${dayNameMap[dayKey] || "-"}`;
         const todayData = state.schedule[dayKey] || { lessons: [] };
         const lessons = Array.isArray(todayData.lessons) ? todayData.lessons : [];
+        todayScheduleTable.replaceChildren();
 
         if (!lessons.length) {
-          todayScheduleTable.innerHTML = `
-            <tr>
-              <td colspan="3" class="px-3 py-3 text-center text-slate-500">Belum ada jadwal hari ini.</td>
-            </tr>
-          `;
+          const row = document.createElement("tr");
+          const cell = document.createElement("td");
+          cell.colSpan = 3;
+          cell.className = "px-3 py-3 text-center text-slate-500";
+          cell.textContent = "Belum ada jadwal hari ini.";
+          row.appendChild(cell);
+          todayScheduleTable.appendChild(row);
         } else {
-          todayScheduleTable.innerHTML = lessons
-            .map(
-              (lesson) => `
-              <tr>
-                <td class="px-3 py-2">${lesson.teacher || "-"}</td>
-                <td class="px-3 py-2">${lesson.time || "-"}</td>
-                <td class="px-3 py-2">${lesson.subject || "-"}</td>
-              </tr>
-            `
-            )
-            .join("");
+          lessons.forEach((lesson) => {
+            const row = document.createElement("tr");
+            ["teacher", "time", "subject"].forEach((field) => {
+              const cell = document.createElement("td");
+              cell.className = "px-3 py-2";
+              cell.textContent = lesson[field] || "-";
+              row.appendChild(cell);
+            });
+            todayScheduleTable.appendChild(row);
+          });
         }
 
         renderScheduleEditor();
@@ -983,65 +1312,92 @@
         const day = document.getElementById("scheduleDay").value;
         const list = document.getElementById("scheduleEditorList");
         const lessons = (state.schedule[day] && state.schedule[day].lessons) || [];
+        list.replaceChildren();
 
-        list.innerHTML = lessons.length
-          ? lessons
-              .map(
-                (item, i) => `
-              <li class="flex items-center justify-between gap-3 rounded-lg border border-slate-200 p-2">
-                <p><span class="font-semibold">${item.time || "-"}</span> - ${item.subject || "-"} (${item.teacher || "-"})</p>
-                <button data-day="${day}" data-index="${i}" class="deleteScheduleItem rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">Hapus</button>
-              </li>
-            `
-              )
-              .join("")
-          : '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada jadwal untuk hari ini.</li>';
+        if (!lessons.length) {
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg bg-slate-50 p-3 text-slate-500";
+          empty.textContent = "Belum ada jadwal untuk hari ini.";
+          list.appendChild(empty);
+          return;
+        }
 
-        document.querySelectorAll(".deleteScheduleItem").forEach((btn) => {
-          btn.addEventListener("click", async () => {
+        lessons.forEach((item, i) => {
+          const row = document.createElement("li");
+          row.className = "flex items-center justify-between gap-3 rounded-lg border border-slate-200 p-2";
+
+          const text = document.createElement("p");
+          const time = document.createElement("span");
+          time.className = "font-semibold";
+          time.textContent = item.time || "-";
+          text.append(time, document.createTextNode(` - ${item.subject || "-"} (${item.teacher || "-"})`));
+
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600";
+          remove.textContent = "Hapus";
+          remove.addEventListener("click", async () => {
             if (!db || !isAdmin) return;
-            const selectedDay = btn.dataset.day;
-            const index = Number(btn.dataset.index);
-            const current = (state.schedule[selectedDay] && state.schedule[selectedDay].lessons) || [];
-            const updated = current.filter((_, idx) => idx !== index);
-            await setDoc(doc(db, "schedule", selectedDay), { lessons: updated }, { merge: true });
+            await updateScheduleLessons(day, (current) => current.filter((_, idx) => idx !== i));
           });
+
+          row.append(text, remove);
+          list.appendChild(row);
+        });
+      }
+
+      async function updateScheduleLessons(day, updater) {
+        const dayRef = doc(db, "schedule", day);
+        await runTransaction(db, async (transaction) => {
+          const snapshot = await transaction.get(dayRef);
+          const current = snapshot.exists() && Array.isArray(snapshot.data().lessons)
+            ? snapshot.data().lessons
+            : [];
+          transaction.set(dayRef, { lessons: updater(current) }, { merge: true });
         });
       }
 
       function renderAnnouncements() {
+        announcementList.replaceChildren();
         if (!state.announcements.length) {
-          announcementList.innerHTML = '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada pengingat.</li>';
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg bg-slate-50 p-3 text-slate-500";
+          empty.textContent = "Belum ada pengingat.";
+          announcementList.appendChild(empty);
         } else {
-          announcementList.innerHTML = state.announcements
-            .map(
-              (item) => `
-              <li class="rounded-lg border border-slate-200 p-3 text-sm">• ${item.text || "(Kosong)"}</li>
-            `
-            )
-            .join("");
+          state.announcements.forEach((item) => {
+            const row = document.createElement("li");
+            row.className = "rounded-lg border border-slate-200 p-3 text-sm";
+            row.textContent = `• ${item.text || "(Kosong)"}`;
+            announcementList.appendChild(row);
+          });
         }
 
         const editor = document.getElementById("announcementEditorList");
-        editor.innerHTML = state.announcements.length
-          ? state.announcements
-              .map(
-                (item) => `
-              <li class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2">
-                <span>${item.text || "(Kosong)"}</span>
-                <button data-id="${item.id}" class="deleteAnnouncement rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">Hapus</button>
-              </li>
-            `
-              )
-              .join("")
-          : '<li class="rounded-lg bg-slate-50 p-3 text-slate-500">Belum ada pengingat.</li>';
-
-        document.querySelectorAll(".deleteAnnouncement").forEach((btn) => {
-          btn.addEventListener("click", async () => {
+        editor.replaceChildren();
+        if (!state.announcements.length) {
+          const empty = document.createElement("li");
+          empty.className = "rounded-lg bg-slate-50 p-3 text-slate-500";
+          empty.textContent = "Belum ada pengingat.";
+          editor.appendChild(empty);
+        } else {
+          state.announcements.forEach((item) => {
+            const row = document.createElement("li");
+            row.className = "flex items-center justify-between gap-2 rounded-lg border border-slate-200 p-2";
+            const text = document.createElement("span");
+            text.textContent = item.text || "(Kosong)";
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600";
+            remove.textContent = "Hapus";
+            remove.addEventListener("click", async () => {
             if (!db || !isAdmin) return;
-            await deleteDoc(doc(db, "announcements", btn.dataset.id));
+              await deleteDoc(doc(db, "announcements", item.id));
+            });
+            row.append(text, remove);
+            editor.appendChild(row);
           });
-        });
+        }
       }
 
       function updateAdminUI() {
@@ -1071,7 +1427,7 @@
         const configInvalid = Object.values(firebaseConfig).some((v) => !v || String(v).startsWith("PASTE_"));
 
         if (configInvalid) {
-          loginMsg.textContent = "Firebase belum dikonfigurasi. Isi firebaseConfig di script.";
+          userAccountMsg.textContent = "Firebase belum dikonfigurasi. Isi firebaseConfig di script.";
           return;
         }
 
@@ -1079,11 +1435,60 @@
         auth = getAuth(app);
         db = getFirestore(app);
 
-        onAuthStateChanged(auth, (user) => {
-          isAdmin = !!user;
+        onAuthStateChanged(auth, async (user) => {
+          currentUser = user;
+          try {
+            isAdmin = user ? (await getDoc(doc(db, "admins", user.uid))).exists() : false;
+          } catch (err) {
+            console.warn("Hak akses akun tidak dapat diperiksa.", err);
+            isAdmin = false;
+            syncStatus.textContent = "Hak akses akun belum dapat diperiksa.";
+          }
           updateAdminUI();
+          userAccountForm.classList.toggle("hidden", !!user);
+          userLogoutBtn.classList.toggle("hidden", !user);
+
+          if (user) {
+            const guestData = readPersonalData("guest");
+            loadPersonalData(`user:${user.uid}`);
+            userAccountMsg.textContent = `Sinkron aktif untuk ${user.email}`;
+            syncStatus.textContent = "Memuat data akun…";
+            if (userDataUnsubscribe) userDataUnsubscribe();
+            userDataUnsubscribe = onSnapshot(doc(db, "userData", user.uid), async (snapshot) => {
+              isLoadingUserData = true;
+              const remoteData = snapshot.exists() ? snapshot.data() : {};
+              const adoptedGuestData = adoptGuestDataWhenAccountIsEmpty(guestData, remoteData);
+              const winner = adoptedGuestData ? "local" : mergePersonalData(remoteData);
+              isLoadingUserData = false;
+              renderCalendar();
+              renderDailyPlanner();
+              renderDailyNotes();
+              if (!snapshot.exists() || winner === "local") await saveUserData();
+              syncStatus.textContent = adoptedGuestData
+                ? "Data laptop sudah dipindahkan ke akun dan tersinkron."
+                : "Data akun sudah tersinkron.";
+            }, (err) => {
+              console.warn("Data akun tidak dapat dimuat.", err);
+              isLoadingUserData = false;
+              syncStatus.textContent = "Data akun tidak dapat dimuat; memakai salinan perangkat.";
+            });
+          } else {
+            currentUser = null;
+            if (userDataUnsubscribe) {
+              userDataUnsubscribe();
+              userDataUnsubscribe = null;
+            }
+            loadPersonalData("guest");
+            userAccountMsg.textContent = "Login dengan akun yang sudah dibuat di Firebase.";
+            syncStatus.textContent = "Mode perangkat: data tidak dikirim ke akun mana pun.";
+            renderCalendar();
+            renderDailyPlanner();
+            renderDailyNotes();
+          }
+
           if (isAdmin) {
-            loginMsg.textContent = `Login sebagai ${user.email}`;
+            closeModal("loginModal");
+          } else if (user) {
             closeModal("loginModal");
           }
         });
@@ -1092,6 +1497,9 @@
         onSnapshot(eventsQuery, (snapshot) => {
           state.events = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
           renderEvents();
+        }, (err) => {
+          console.warn("Acara tidak dapat dimuat.", err);
+          eventsList.innerHTML = '<li class="rounded-lg bg-red-50 p-3 text-red-700">Acara tidak dapat dimuat. Periksa koneksi lalu coba lagi.</li>';
         });
 
         onSnapshot(collection(db, "schedule"), (snapshot) => {
@@ -1101,12 +1509,18 @@
           });
           state.schedule = scheduleObj;
           renderTodaySchedule();
+        }, (err) => {
+          console.warn("Jadwal tidak dapat dimuat.", err);
+          todayScheduleTable.innerHTML = '<tr><td colspan="3" class="px-3 py-3 text-center text-red-700">Jadwal tidak dapat dimuat.</td></tr>';
         });
 
         const annQuery = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
         onSnapshot(annQuery, (snapshot) => {
           state.announcements = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
           renderAnnouncements();
+        }, (err) => {
+          console.warn("Pengingat tidak dapat dimuat.", err);
+          announcementList.innerHTML = '<li class="rounded-lg bg-red-50 p-3 text-red-700">Pengingat tidak dapat dimuat.</li>';
         });
       }
 
@@ -1123,6 +1537,8 @@
 
       plannerDateInput.value = formatDateKey(new Date());
       plannerDateInput.addEventListener("change", renderDailyPlanner);
+      dailyNoteDateInput.value = formatDateKey(new Date());
+      dailyNoteDateInput.addEventListener("change", renderDailyNotes);
 
       document.getElementById("plannerForm").addEventListener("submit", (e) => {
         e.preventDefault();
@@ -1153,6 +1569,27 @@
         saveDailyPlans();
         e.target.reset();
         renderDailyPlanner();
+        renderCalendar();
+      });
+
+      document.getElementById("dailyNoteForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const dateKey = dailyNoteDateInput.value || formatDateKey(new Date());
+        const textInput = document.getElementById("dailyNoteText");
+        const text = textInput.value.trim();
+        const type = new FormData(e.target).get("dailyNoteType") === "Ide" ? "Ide" : "Masalah";
+        if (!text) return;
+
+        if (!state.dailyNotes[dateKey]) state.dailyNotes[dateKey] = [];
+        state.dailyNotes[dateKey].unshift({
+          id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          type,
+          text,
+          createdAt: new Date().toISOString(),
+        });
+        saveDailyNotes();
+        textInput.value = "";
+        renderDailyNotes();
         renderCalendar();
       });
 
@@ -1195,20 +1632,31 @@
         });
       });
 
-      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      userAccountForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         if (!auth) {
-          loginMsg.textContent = "Firebase belum siap. Cek firebaseConfig.";
+          userAccountMsg.textContent = "Firebase belum siap. Cek konfigurasi.";
           return;
         }
-        const email = document.getElementById("adminEmail").value.trim();
-        const password = document.getElementById("adminPassword").value;
+        const email = document.getElementById("userEmail").value.trim();
+        const password = document.getElementById("userPassword").value;
         try {
           await signInWithEmailAndPassword(auth, email, password);
-          loginMsg.textContent = "Login berhasil.";
+          userAccountMsg.textContent = "Login berhasil. Data sedang disinkronkan.";
+          e.target.reset();
         } catch (err) {
-          loginMsg.textContent = `Login gagal: ${err.message}`;
+          const friendlyLoginErrors = {
+            "auth/invalid-credential": "Email atau password salah.",
+            "auth/invalid-email": "Format email tidak valid.",
+            "auth/too-many-requests": "Terlalu banyak percobaan. Tunggu beberapa saat lalu coba lagi.",
+            "auth/network-request-failed": "Koneksi bermasalah. Periksa internet lalu coba lagi.",
+          };
+          userAccountMsg.textContent = friendlyLoginErrors[err.code] || "Login belum berhasil. Silakan coba lagi.";
         }
+      });
+
+      userLogoutBtn.addEventListener("click", async () => {
+        if (auth) await signOut(auth);
       });
 
       document.getElementById("taskForm").addEventListener("submit", (e) => {
@@ -1253,11 +1701,7 @@
 
         if (!teacher || !time || !subject) return;
 
-        const dayRef = doc(db, "schedule", day);
-        const snap = await getDoc(dayRef);
-        const existing = snap.exists() && Array.isArray(snap.data().lessons) ? snap.data().lessons : [];
-
-        await setDoc(dayRef, { lessons: [...existing, { teacher, time, subject }] }, { merge: true });
+        await updateScheduleLessons(day, (existing) => [...existing, { teacher, time, subject }]);
 
         document.getElementById("scheduleTeacher").value = "";
         document.getElementById("scheduleTime").value = "";
@@ -1281,11 +1725,13 @@
 
       renderCalendar();
       renderDailyPlanner();
+      renderDailyNotes();
       renderEvents();
       document.getElementById("scheduleDay").value = dayMap[new Date().getDay()];
       renderTodaySchedule();
       renderAnnouncements();
       initFirebase();
+      window.setInterval(refreshForDateChange, 60_000);
       if (window.lucide) window.lucide.createIcons();
     </script>
   </body>

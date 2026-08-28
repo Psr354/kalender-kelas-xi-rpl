@@ -16,7 +16,7 @@ Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memanta
 - Kalender bulanan interaktif dengan navigasi bulan.
 - Penanda hari libur nasional dan cuti bersama Indonesia tahun 2026.
 - Penambahan dan penghapusan tugas pribadi berdasarkan tanggal.
-- Penyimpanan tugas pribadi pada `localStorage` browser.
+- Penyimpanan lokal yang terisolasi per akun dan sinkronisasi data pribadi ke Firestore.
 - Rundown harian berbasis waktu, detail aktivitas, dan checklist penyelesaian.
 - Progress harian, poin, streak hari sempurna, dan animasi apresiasi saat rundown tuntas.
 - Daftar acara mendatang yang diperbarui secara real-time.
@@ -84,15 +84,30 @@ Tidak diperlukan Node.js maupun proses instalasi dependency karena seluruh depen
    events
    schedule
    announcements
+   userData
    ```
 
-5. Jalankan aplikasi menggunakan server HTTP lokal:
+5. Buat dokumen allowlist `admins/{uid}` untuk setiap akun pengelola dari Firebase Console atau lingkungan server tepercaya. Isi dokumen boleh berupa metadata sederhana, misalnya:
+
+   ```json
+   { "role": "admin" }
+   ```
+
+   Security Rules menolak perubahan koleksi `admins` dari aplikasi, sehingga pengguna tidak dapat menjadikan dirinya sendiri sebagai admin.
+
+6. Terapkan [firestore.rules](firestore.rules) ke project Firebase:
+
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
+
+7. Jalankan aplikasi menggunakan server HTTP lokal:
 
    ```bash
    python -m http.server 8000
    ```
 
-6. Buka `http://localhost:8000` pada browser.
+8. Buka `http://localhost:8000` pada browser.
 
 > [!IMPORTANT]
 > Terapkan Firestore Security Rules yang hanya mengizinkan pengguna terautentikasi untuk menulis data. Konfigurasi Firebase pada frontend bukan secret; keamanan data tetap bergantung pada Authentication dan Security Rules.
@@ -109,13 +124,12 @@ Tidak diperlukan Node.js maupun proses instalasi dependency karena seluruh depen
 6. Centang aktivitas yang selesai untuk memperoleh poin dan membangun streak.
 7. Lihat acara, jadwal hari ini, hari libur, dan pengingat kelas pada halaman utama.
 
-Tugas pribadi dan rundown harian hanya tersimpan pada browser dan perangkat tempat data tersebut dibuat.
-Pengunjung dari perangkat atau profil browser lain tidak dapat melihat data tersebut. Namun, pengguna lain yang memakai profil browser dan alamat web yang sama pada perangkat yang sama dapat membukanya. Gunakan profil browser pribadi dan hindari perangkat bersama untuk catatan yang sensitif.
+Tanpa login, tugas, rundown, dan catatan tersimpan dalam ruang lokal tamu. Setelah login, data disimpan dalam ruang lokal khusus UID pengguna dan disinkronkan ke dokumen `userData/{uid}`. Saat akun masih kosong, data lokal tamu yang sudah ada otomatis dipindahkan ke akun agar dapat muncul di perangkat lain. Data akun berbeda tidak digabungkan satu sama lain.
 
 ### Admin
 
-1. Klik tombol pengaturan di kanan bawah halaman.
-2. Login menggunakan akun Firebase Authentication.
+1. Pastikan UID akun telah terdaftar sebagai dokumen dalam koleksi `admins`.
+2. Klik tombol login di kanan bawah halaman dan masuk menggunakan akun Firebase Authentication.
 3. Gunakan tombol **Edit** untuk mengelola acara, jadwal pelajaran, dan pengingat umum.
 
 ## 📁 Struktur Folder
