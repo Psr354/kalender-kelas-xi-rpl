@@ -181,6 +181,43 @@
         width: 14px;
       }
 
+      .planner-actions {
+        align-items: center;
+        display: flex;
+        gap: 0.25rem;
+      }
+
+      .planner-action-btn {
+        align-items: center;
+        border-radius: 8px;
+        display: inline-flex;
+        height: 40px;
+        justify-content: center;
+        transition: background 0.2s ease, color 0.2s ease;
+        width: 40px;
+      }
+
+      .planner-action-btn:focus-visible {
+        outline: 2px solid rgba(59, 130, 246, 0.45);
+        outline-offset: 2px;
+      }
+
+      .planner-action-btn.edit {
+        color: #2563eb;
+      }
+
+      .planner-action-btn.edit:hover {
+        background: #dbeafe;
+      }
+
+      .planner-action-btn.remove {
+        color: #dc2626;
+      }
+
+      .planner-action-btn.remove:hover {
+        background: #fee2e2;
+      }
+
       .celebration-piece {
         animation: celebration 900ms ease-out forwards;
         border-radius: 2px;
@@ -390,8 +427,10 @@
                 <label class="text-xs font-semibold text-slate-600 md:col-span-4">Aktivitas <span class="text-red-600">*</span><input id="plannerActivity" type="text" maxlength="80" placeholder="Contoh: Sarapan dan bersiap" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
                 <label class="text-xs font-semibold text-slate-600 md:col-span-4">Detail<input id="plannerDetail" type="text" maxlength="140" placeholder="Target atau catatan kecil" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" /></label>
                 <p id="plannerFormError" class="hidden text-sm font-medium text-red-600 md:col-span-12" role="alert"></p>
-                <button id="plannerSubmitBtn" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 md:col-span-3 md:col-start-10" type="submit"><i data-lucide="plus" class="h-4 w-4" aria-hidden="true"></i><span id="plannerSubmitText">Tambah aktivitas</span></button>
-                <button id="plannerCancelEditBtn" class="hidden min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200 md:col-span-3 md:col-start-7" type="button">Batal edit</button>
+                <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end md:col-span-12">
+                  <button id="plannerCancelEditBtn" class="hidden min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200" type="button">Batal edit</button>
+                  <button id="plannerSubmitBtn" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300" type="submit"><i data-lucide="plus" class="h-4 w-4" aria-hidden="true"></i><span id="plannerSubmitText">Tambah aktivitas</span></button>
+                </div>
               </form>
               <ol id="plannerList" class="mt-4 space-y-2"></ol>
             </div>
@@ -1159,9 +1198,9 @@
 
         items.forEach((item) => {
           const row = document.createElement("li");
-          row.className = `flex items-start gap-3 rounded-lg border p-3 transition ${
+          row.className = `flex items-start gap-3 rounded-lg border p-3 transition sm:items-center ${
             editingPlanId === item.id
-              ? "border-blue-300 bg-blue-50"
+              ? "border-blue-300 bg-blue-50 ring-2 ring-blue-100"
               : item.completed ? "border-green-200 bg-green-50" : "border-slate-200 bg-white"
           }`;
 
@@ -1186,12 +1225,12 @@
           const content = document.createElement("div");
           content.className = "min-w-0 flex-1";
           const heading = document.createElement("div");
-          heading.className = "flex flex-wrap items-baseline gap-x-3 gap-y-1";
+          heading.className = "flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-x-3";
           const time = document.createElement("span");
           time.className = "rounded bg-blue-100 px-2 py-1 text-xs font-bold tabular-nums text-blue-700";
           time.textContent = `${item.start}-${item.end}`;
           const title = document.createElement("p");
-          title.className = `font-semibold text-slate-800 ${item.completed ? "line-through opacity-60" : ""}`;
+          title.className = `break-words font-semibold text-slate-800 ${item.completed ? "line-through opacity-60" : ""}`;
           title.textContent = item.activity;
           heading.append(time, title);
           content.appendChild(heading);
@@ -1203,20 +1242,24 @@
           }
 
           const actions = document.createElement("div");
-          actions.className = "flex shrink-0 flex-col gap-1";
+          actions.className = "planner-actions shrink-0";
 
           const edit = document.createElement("button");
           edit.type = "button";
-          edit.className = "min-h-10 rounded-lg px-3 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200";
-          edit.textContent = "Edit";
+          edit.className = "planner-action-btn edit";
+          edit.title = "Edit aktivitas";
+          edit.setAttribute("aria-label", `Edit ${item.activity}`);
+          edit.innerHTML = '<i data-lucide="pencil" class="h-4 w-4" aria-hidden="true"></i>';
           edit.addEventListener("click", () => {
             editDailyPlan(dateKey, item);
           });
 
           const remove = document.createElement("button");
           remove.type = "button";
-          remove.className = "min-h-10 rounded-lg px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200";
-          remove.textContent = "Hapus";
+          remove.className = "planner-action-btn remove";
+          remove.title = "Hapus aktivitas";
+          remove.setAttribute("aria-label", `Hapus ${item.activity}`);
+          remove.innerHTML = '<i data-lucide="trash-2" class="h-4 w-4" aria-hidden="true"></i>';
           remove.addEventListener("click", () => {
             state.dailyPlans[dateKey] = (state.dailyPlans[dateKey] || []).filter((plan) => plan.id !== item.id);
             if (!state.dailyPlans[dateKey].length) delete state.dailyPlans[dateKey];
@@ -1230,6 +1273,7 @@
           row.append(checkbox, content, actions);
           plannerList.appendChild(row);
         });
+        if (window.lucide) window.lucide.createIcons();
       }
 
       function renderTaskEditor(selectedDate) {
