@@ -253,6 +253,65 @@ def announcements_delete(announcement_id):
     return jsonify({"ok": True})
 
 
+@app.post("/api/admin/import-users")
+@require_admin
+def admin_import_users():
+    payload = request.get_json(silent=True) or {}
+    users = payload.get("users", [])
+    if not isinstance(users, list):
+        return jsonify({"error": "invalid_users"}), 400
+
+    imported = 0
+    with db() as conn:
+        for item in users:
+            if not isinstance(item, dict):
+                continue
+            user_id = str(item.get("id") or "").strip()
+            email = str(item.get("email") or "").strip().lower()
+            password = str(item.get("password") or "")
+            if not user_id or not email or not password:
+                continue
+            is_admin_user = 1 if item.get("isAdmin") else 0
+            existing = conn.execute("SELECT id FROM users WHERE id = ? OR email = ?", (user_id, email)).fetchone()
+            if existing:
+                conn.execute(
+                    "UPDATE users SET email = ?, password_hash = ?, is_admin = max(is_admin, ?) WHERE id = ?",
+                    (email, generate_password_hash(password), is_admin_user, existing["id"]),
+                )
+                user_id = existing["id"]
+            else:
+                conn.execute(
+                    "INSERT INTO users (id, email, password_hash, is_admin, created_at) VALUES (?, ?, ?, ?, ?)",
+                    (user_id, email, generate_password_hash(password), is_admin_user, now_ms()),
+                )
+
+            user_data = item.get("userData") if isinstance(item.get("userData"), dict) else None
+            if user_data is not None:
+                conn.execute(
+                    """
+                    INSERT INTO user_data (user_id, personal_tasks, daily_plans, daily_notes, data_version, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(user_id) DO UPDATE SET
+                      personal_tasks = excluded.personal_tasks,
+                      daily_plans = excluded.daily_plans,
+                      daily_notes = excluded.daily_notes,
+                      data_version = excluded.data_version,
+                      updated_at = excluded.updated_at
+                    """,
+                    (
+                        user_id,
+                        json.dumps(json_map(user_data.get("personalTasks"))),
+                        json.dumps(json_map(user_data.get("dailyPlans"))),
+                        json.dumps(json_map(user_data.get("dailyNotes"))),
+                        int(user_data.get("dataVersion") or 0),
+                        now_ms(),
+                    ),
+                )
+            imported += 1
+
+    return jsonify({"imported": imported})
+
+
 @app.get("/api/user-data")
 @require_login
 def user_data_show():
