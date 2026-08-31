@@ -7,7 +7,7 @@
 
 Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memantau kalender, tugas pribadi, jadwal pelajaran, acara mendatang, dan pengingat kelas dalam satu halaman. Data bersama dan data akun disimpan melalui backend sendiri, sedangkan mode tamu tetap tersimpan lokal pada browser pengguna.
 
-🌐 **Backend self-hosted:** Flask + SQLite, siap dijalankan dengan Docker Compose.
+🌐 **Live:** [kalender.sekeluarga.web.id](https://kalender.sekeluarga.web.id/)
 
 ![Tampilan Kalender Kelas](assets/jadwal_kelas.png)
 
