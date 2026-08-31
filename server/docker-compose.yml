@@ -1,0 +1,16 @@
+services:
+  kalender_psr354:
+    build: .
+    container_name: kalender_psr354_app
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./data:/data
+      - ../index.html:/app/index.html:ro
+      - ../assets:/app/assets:ro
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=production
+      - PSR354_DATABASE_PATH=/data/kalender.sqlite3

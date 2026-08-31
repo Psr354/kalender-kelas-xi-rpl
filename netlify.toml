@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/api/*"
+  to = "http://10.172.210.53:5050/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

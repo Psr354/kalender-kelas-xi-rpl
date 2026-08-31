@@ -3,11 +3,11 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](#)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](#lisensi)
-[![Live Demo](https://img.shields.io/badge/demo-Netlify-00C7B7.svg)](https://kalender-rpl.netlify.app/)
+[![Deploy](https://img.shields.io/badge/deploy-self--hosted-blue.svg)](#deployment-server)
 
-Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memantau kalender, tugas pribadi, jadwal pelajaran, acara mendatang, dan pengingat kelas dalam satu halaman. Data bersama disinkronkan secara real-time melalui Firebase, sedangkan tugas pribadi tersimpan secara lokal pada browser pengguna.
+Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memantau kalender, tugas pribadi, jadwal pelajaran, acara mendatang, dan pengingat kelas dalam satu halaman. Data bersama dan data akun disimpan melalui backend sendiri, sedangkan mode tamu tetap tersimpan lokal pada browser pengguna.
 
-🌐 **Live Demo:** [kalender-rpl.netlify.app](https://kalender-rpl.netlify.app/)
+🌐 **Backend self-hosted:** Flask + SQLite, siap dijalankan dengan Docker Compose.
 
 ![Tampilan Kalender Kelas](assets/jadwal_kelas.png)
 
@@ -16,10 +16,10 @@ Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memanta
 - Kalender bulanan interaktif dengan navigasi bulan.
 - Penanda hari libur nasional dan cuti bersama Indonesia tahun 2026.
 - Penambahan dan penghapusan tugas pribadi berdasarkan tanggal.
-- Penyimpanan lokal yang terisolasi per akun dan sinkronisasi data pribadi ke Firestore.
+- Penyimpanan lokal yang terisolasi per akun dan sinkronisasi data pribadi ke server sendiri.
 - Rundown harian berbasis waktu, detail aktivitas, dan checklist penyelesaian.
 - Progress harian, poin, streak hari sempurna, dan animasi apresiasi saat rundown tuntas.
-- Daftar acara mendatang yang diperbarui secara real-time.
+- Daftar acara mendatang dari API server.
 - Jadwal pelajaran harian berdasarkan hari aktif.
 - Pengingat umum untuk seluruh siswa.
 - Autentikasi admin untuk mengelola acara, jadwal, dan pengingat.
@@ -32,8 +32,9 @@ Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memanta
 | HTML5 | Struktur aplikasi |
 | Tailwind CSS (CDN) | Styling dan desain responsif |
 | JavaScript ES Modules | Logika aplikasi dan interaksi UI |
-| Firebase Authentication | Autentikasi admin |
-| Cloud Firestore | Penyimpanan dan sinkronisasi data bersama |
+| Flask | API, autentikasi, dan session |
+| SQLite | Penyimpanan data server |
+| Docker Compose | Deployment backend |
 | Google Fonts | Font antarmuka (`Inter`) |
 | Browser Local Storage | Penyimpanan tugas pribadi dan rundown harian |
 
@@ -42,15 +43,12 @@ Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memanta
 Pastikan perangkat telah memiliki:
 
 - Browser modern, seperti Chrome, Edge, atau Firefox.
-- Koneksi internet untuk memuat Tailwind CSS, Google Fonts, dan Firebase SDK dari CDN.
-- Salah satu server HTTP lokal:
-  - Python 3.9+; atau
-  - ekstensi **Live Server** untuk Visual Studio Code.
-- Project Firebase dengan **Authentication** dan **Cloud Firestore** aktif jika menggunakan backend sendiri.
+- Koneksi internet untuk memuat Tailwind CSS dan Google Fonts dari CDN.
+- Docker dan Docker Compose untuk menjalankan backend.
 
-Tidak diperlukan Node.js maupun proses instalasi dependency karena seluruh dependency frontend dimuat melalui CDN.
+Tidak diperlukan Node.js karena seluruh dependency frontend dimuat melalui CDN.
 
-## 🚀 Instalasi & Setup
+## 🚀 Instalasi & Setup Lokal
 
 1. Clone repository dan masuk ke direktori proyek:
 
@@ -59,58 +57,57 @@ Tidak diperlukan Node.js maupun proses instalasi dependency karena seluruh depen
    cd kalender-kelas-xi-rpl
    ```
 
-2. Konfigurasikan Firebase pada objek `firebaseConfig` di `index.html`:
-
-   ```js
-   const firebaseConfig = {
-     apiKey: "YOUR_API_KEY",
-     authDomain: "YOUR_PROJECT.firebaseapp.com",
-     projectId: "YOUR_PROJECT_ID",
-     storageBucket: "YOUR_PROJECT.firebasestorage.app",
-     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-     appId: "YOUR_APP_ID",
-   };
-   ```
-
-3. Aktifkan provider **Email/Password** melalui Firebase Console:
-
-   ```text
-   Firebase Console → Authentication → Sign-in method → Email/Password
-   ```
-
-4. Buat database **Cloud Firestore** dan siapkan koleksi berikut:
-
-   ```text
-   events
-   schedule
-   announcements
-   userData
-   ```
-
-5. Buat dokumen allowlist `admins/{uid}` untuk setiap akun pengelola dari Firebase Console atau lingkungan server tepercaya. Isi dokumen boleh berupa metadata sederhana, misalnya:
-
-   ```json
-   { "role": "admin" }
-   ```
-
-   Security Rules menolak perubahan koleksi `admins` dari aplikasi, sehingga pengguna tidak dapat menjadikan dirinya sendiri sebagai admin.
-
-6. Terapkan [firestore.rules](firestore.rules) ke project Firebase:
+2. Siapkan konfigurasi backend:
 
    ```bash
-   firebase deploy --only firestore:rules
+   cd server
+   cp .env.example .env
    ```
 
-7. Jalankan aplikasi menggunakan server HTTP lokal:
+3. Edit `.env` lalu isi `SECRET_KEY`, `ADMIN_EMAIL`, dan `ADMIN_PASSWORD`.
+
+4. Jalankan backend:
 
    ```bash
-   python -m http.server 8000
+   docker compose up -d --build
    ```
 
-8. Buka `http://localhost:8000` pada browser.
+5. Buka aplikasi:
 
-> [!IMPORTANT]
-> Terapkan Firestore Security Rules yang hanya mengizinkan pengguna terautentikasi untuk menulis data. Konfigurasi Firebase pada frontend bukan secret; keamanan data tetap bergantung pada Authentication dan Security Rules.
+   ```text
+   http://localhost:5050
+   ```
+
+## Deployment Server
+
+Aplikasi dapat ditempatkan di direktori sendiri, misalnya:
+
+```text
+~/kalender_psr354
+```
+
+Struktur deployment:
+
+```text
+kalender_psr354/
+├── assets/
+├── index.html
+└── server/
+    ├── app.py
+    ├── docker-compose.yml
+    ├── Dockerfile
+    ├── requirements.txt
+    └── .env
+```
+
+Jalankan dari server:
+
+```bash
+cd ~/kalender_psr354/server
+docker compose up -d --build
+```
+
+Secara default aplikasi berjalan di port `5050`. Gunakan `nginx-kalender-psr354.conf` sebagai contoh reverse proxy Nginx.
 
 ## 💡 Cara Penggunaan
 
@@ -124,12 +121,12 @@ Tidak diperlukan Node.js maupun proses instalasi dependency karena seluruh depen
 6. Centang aktivitas yang selesai untuk memperoleh poin dan membangun streak.
 7. Lihat acara, jadwal hari ini, hari libur, dan pengingat kelas pada halaman utama.
 
-Tanpa login, tugas, rundown, dan catatan tersimpan dalam ruang lokal tamu. Setelah login, data disimpan dalam ruang lokal khusus UID pengguna dan disinkronkan ke dokumen `userData/{uid}`. Saat akun masih kosong, data lokal tamu yang sudah ada otomatis dipindahkan ke akun agar dapat muncul di perangkat lain. Data akun berbeda tidak digabungkan satu sama lain.
+Tanpa login, tugas, rundown, dan catatan tersimpan dalam ruang lokal tamu. Setelah login, data disimpan dalam ruang lokal khusus akun dan disinkronkan ke server. Saat akun masih kosong, data lokal tamu yang sudah ada otomatis dipindahkan ke akun agar dapat muncul di perangkat lain. Data akun berbeda tidak digabungkan satu sama lain.
 
 ### Admin
 
-1. Pastikan UID akun telah terdaftar sebagai dokumen dalam koleksi `admins`.
-2. Klik tombol login di kanan bawah halaman dan masuk menggunakan akun Firebase Authentication.
+1. Pastikan `ADMIN_EMAIL` dan `ADMIN_PASSWORD` sudah diatur di `server/.env`.
+2. Klik tombol login di kanan bawah halaman dan masuk menggunakan akun admin server.
 3. Gunakan tombol **Edit** untuk mengelola acara, jadwal pelajaran, dan pengingat umum.
 
 ## 📁 Struktur Folder

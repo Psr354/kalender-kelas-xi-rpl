@@ -71,6 +71,151 @@
         animation: reward-pop 320ms ease-out;
       }
 
+      .time-input-trigger {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 500;
+        min-height: 44px;
+        padding: 0.7rem 0.9rem;
+        text-align: left;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .time-input-trigger:focus-visible,
+      .time-input-trigger:hover {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        outline: none;
+      }
+
+      .time-picker-modal {
+        backdrop-filter: blur(2px);
+      }
+
+      .time-picker-face {
+        background: #dfe3ea;
+        border-radius: 999px;
+        height: 290px;
+        margin: 0 auto;
+        position: relative;
+        width: 290px;
+      }
+
+      .time-picker-face::before {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        content: "";
+        inset: 14px;
+        position: absolute;
+      }
+
+      .time-picker-number {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 50%;
+        color: #0f172a;
+        display: inline-flex;
+        font-size: 0.9rem;
+        font-weight: 600;
+        height: 36px;
+        justify-content: center;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        width: 36px;
+      }
+
+      .time-picker-number.selected {
+        background: #3b82f6;
+        color: white;
+        box-shadow: 0 6px 18px rgba(59, 130, 246, 0.25);
+      }
+
+      .time-picker-number:disabled {
+        color: #94a3b8;
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      .time-adjust-btn,
+      .time-preset-btn {
+        align-items: center;
+        border: 1px solid #d6deea;
+        border-radius: 8px;
+        display: inline-flex;
+        font-weight: 700;
+        justify-content: center;
+        transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      }
+
+      .time-adjust-btn {
+        background: #fff;
+        color: #1e293b;
+        font-size: 1.15rem;
+        min-height: 40px;
+        min-width: 40px;
+      }
+
+      .time-adjust-btn:hover,
+      .time-preset-btn:hover {
+        background: #eff6ff;
+        border-color: #93c5fd;
+        color: #1d4ed8;
+      }
+
+      .time-preset-btn {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 0.78rem;
+        min-height: 36px;
+        padding: 0.45rem 0.65rem;
+      }
+
+      .time-picker-hand {
+        background: linear-gradient(180deg, rgba(148, 163, 184, 0.9), rgba(71, 85, 105, 0.95));
+        border-radius: 999px;
+        height: 88px;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform-origin: center 100%;
+        width: 6px;
+      }
+
+      .time-picker-hand::after {
+        background: #3b82f6;
+        border-radius: 50%;
+        content: "";
+        height: 16px;
+        left: 50%;
+        position: absolute;
+        top: -10px;
+        transform: translateX(-50%);
+        width: 16px;
+      }
+
+      .time-mode-btn {
+        border-radius: 999px;
+        border: 1px solid #cbd5e1;
+        font-weight: 600;
+        min-height: 40px;
+        min-width: 108px;
+        padding: 0.5rem 1rem;
+      }
+
+      .time-mode-btn.active {
+        background: #e0ecff;
+        border-color: #93c5fd;
+        color: #1d4ed8;
+      }
+
+      .time-picker-ghost {
+        color: #475569;
+      }
+
       .celebration-piece {
         animation: celebration 900ms ease-out forwards;
         border-radius: 2px;
@@ -94,7 +239,8 @@
 
       @media (max-width: 768px) {
         .calendar-cell {
-          min-height: 66px;
+          min-height: 72px;
+          padding: 0.5rem;
         }
 
         .quickAddTask {
@@ -264,8 +410,18 @@
 
             <div class="p-4 sm:p-6">
               <form id="plannerForm" class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-12">
-                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Mulai <span class="text-red-600">*</span><input id="plannerStart" type="time" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
-                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Selesai <span class="text-red-600">*</span><input id="plannerEnd" type="time" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
+                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Mulai <span class="text-red-600">*</span>
+                  <button type="button" class="time-input-trigger mt-1 block w-full" data-target="plannerStart" aria-label="Pilih waktu mulai">
+                    <span id="plannerStartText" class="time-picker-ghost">08:00</span>
+                  </button>
+                  <input id="plannerStart" type="hidden" value="08:00" required />
+                </label>
+                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Selesai <span class="text-red-600">*</span>
+                  <button type="button" class="time-input-trigger mt-1 block w-full" data-target="plannerEnd" aria-label="Pilih waktu selesai">
+                    <span id="plannerEndText" class="time-picker-ghost">09:00</span>
+                  </button>
+                  <input id="plannerEnd" type="hidden" value="09:00" required />
+                </label>
                 <label class="text-xs font-semibold text-slate-600 md:col-span-4">Aktivitas <span class="text-red-600">*</span><input id="plannerActivity" type="text" maxlength="80" placeholder="Contoh: Sarapan dan bersiap" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
                 <label class="text-xs font-semibold text-slate-600 md:col-span-4">Detail<input id="plannerDetail" type="text" maxlength="140" placeholder="Target atau catatan kecil" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" /></label>
                 <p id="plannerFormError" class="hidden text-sm font-medium text-red-600 md:col-span-12" role="alert"></p>
@@ -274,6 +430,64 @@
               <ol id="plannerList" class="mt-4 space-y-2"></ol>
             </div>
           </article>
+
+          <div id="timePickerModal" class="time-picker-modal fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/40 p-4">
+            <div class="card-soft w-full max-w-md p-5">
+              <div class="mb-4 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-semibold text-blue-600">Pilih waktu</p>
+                  <h4 id="timePickerTitle" class="text-lg font-semibold text-slate-800">Waktu</h4>
+                </div>
+                <button type="button" class="closeModal rounded bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">Tutup</button>
+              </div>
+
+              <div class="mb-4 rounded-2xl bg-slate-100 px-3 py-4 text-center">
+                <div id="timeDisplay" class="text-5xl font-bold tracking-wide text-slate-800">08:00</div>
+                <p id="timePickerHint" class="mt-2 text-xs font-semibold text-slate-500"></p>
+              </div>
+
+              <div class="mb-4 grid grid-cols-2 gap-3">
+                <div class="rounded-lg border border-slate-200 bg-white p-2">
+                  <div class="mb-2 text-center text-[10px] font-bold uppercase text-slate-500">Jam</div>
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" class="time-adjust-btn" data-time-adjust="hour:-1" aria-label="Kurangi jam"><i data-lucide="minus" class="h-4 w-4" aria-hidden="true"></i></button>
+                    <span id="timeHourValue" class="min-w-10 text-center text-lg font-bold tabular-nums text-slate-800">08</span>
+                    <button type="button" class="time-adjust-btn" data-time-adjust="hour:1" aria-label="Tambah jam"><i data-lucide="plus" class="h-4 w-4" aria-hidden="true"></i></button>
+                  </div>
+                </div>
+                <div class="rounded-lg border border-slate-200 bg-white p-2">
+                  <div class="mb-2 text-center text-[10px] font-bold uppercase text-slate-500">Menit</div>
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" class="time-adjust-btn" data-time-adjust="minute:-5" aria-label="Kurangi menit"><i data-lucide="minus" class="h-4 w-4" aria-hidden="true"></i></button>
+                    <span id="timeMinuteValue" class="min-w-10 text-center text-lg font-bold tabular-nums text-slate-800">00</span>
+                    <button type="button" class="time-adjust-btn" data-time-adjust="minute:5" aria-label="Tambah menit"><i data-lucide="plus" class="h-4 w-4" aria-hidden="true"></i></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4 grid grid-cols-4 gap-2">
+                <button type="button" class="time-preset-btn" data-time-preset="07:00">07:00</button>
+                <button type="button" class="time-preset-btn" data-time-preset="12:00">12:00</button>
+                <button type="button" class="time-preset-btn" data-time-preset="15:30">15:30</button>
+                <button type="button" class="time-preset-btn" data-time-preset="19:00">19:00</button>
+              </div>
+
+              <div class="mb-4 flex justify-center gap-2">
+                <button type="button" data-time-mode="hour" class="time-mode-btn active">Jam</button>
+                <button type="button" data-time-mode="minute" class="time-mode-btn">Menit</button>
+              </div>
+
+              <div class="time-picker-face">
+                <div id="timePickerDial" class="h-full w-full"></div>
+                <div id="timePickerHand" class="time-picker-hand" style="transform: translate(-50%, -100%) rotate(0deg);"></div>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between gap-3">
+                <button type="button" class="closeModal rounded-lg border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Batal</button>
+                <button id="timePickerSet" type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Setel</button>
+              </div>
+            </div>
+          </div>
 
           <article id="pengingat" class="card-soft order-3 p-4 sm:p-5 lg:order-4 lg:col-span-7">
             <div class="mb-3 flex items-center justify-between">
@@ -423,7 +637,7 @@
           <button id="userLoginBtn" class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700" type="submit">Login</button>
         </form>
         <button id="userLogoutBtn" class="hidden w-full rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200" type="button">Logout</button>
-        <p id="userAccountMsg" class="mt-3 text-xs text-slate-500">Login dengan akun yang sudah dibuat di Firebase.</p>
+        <p id="userAccountMsg" class="mt-3 text-xs text-slate-500">Login dengan akun yang sudah dibuat di server.</p>
         <p id="syncStatus" class="mt-2 text-xs font-medium text-slate-500" role="status" aria-live="polite"></p>
       </div>
     </div>
@@ -512,40 +726,7 @@
     </div>
 
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-      import {
-        getAuth,
-        signInWithEmailAndPassword,
-        onAuthStateChanged,
-        signOut,
-      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-      import {
-        getFirestore,
-        collection,
-        addDoc,
-        doc,
-        deleteDoc,
-        setDoc,
-        getDoc,
-        onSnapshot,
-        query,
-        orderBy,
-        serverTimestamp,
-        runTransaction,
-      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-      // ==========================================================
-      // FIREBASE CONFIG - GANTI DENGAN DATA PROJECT ANDA
-      // Firebase Console > Project settings > General > Your apps
-      // ==========================================================
-       const firebaseConfig = {
-        apiKey: "AIzaSyAQrQdRkPyThLHxgGGHj0gQshtQ_ifCntE",
-        authDomain: "kalenderpl.firebaseapp.com",
-        projectId: "kalenderpl",
-        storageBucket: "kalenderpl.firebasestorage.app",
-        messagingSenderId: "700761357878",
-        appId: "1:700761357878:web:c2640728382d5506afa297"
-        };
+      const API_BASE = "";
 
       const monthNames = [
         "Januari",
@@ -605,7 +786,6 @@
       let auth = null;
       let db = null;
       let currentUser = null;
-      let userDataUnsubscribe = null;
       let isLoadingUserData = false;
 
       let now = new Date();
@@ -648,7 +828,14 @@
       const userAccountMsg = document.getElementById("userAccountMsg");
       const syncStatus = document.getElementById("syncStatus");
 
-      const allModals = ["loginModal", "taskModal", "eventsModal", "scheduleModal", "announcementsModal"];
+      const allModals = ["loginModal", "taskModal", "eventsModal", "scheduleModal", "announcementsModal", "timePickerModal"];
+
+      function updateTimeFieldDisplay(fieldId, value) {
+        const input = document.getElementById(fieldId);
+        const text = document.getElementById(`${fieldId}Text`);
+        if (input) input.value = value;
+        if (text) text.textContent = value;
+      }
 
       function openModal(id) {
         document.getElementById(id).classList.remove("hidden");
@@ -662,6 +849,25 @@
 
       function closeAllModals() {
         allModals.forEach((id) => closeModal(id));
+      }
+
+      async function apiRequest(path, options = {}) {
+        const response = await fetch(`${API_BASE}${path}`, {
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {}),
+          },
+          ...options,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(data.error || "request_failed");
+          error.status = response.status;
+          error.data = data;
+          throw error;
+        }
+        return data;
       }
 
       function formatDateKey(date) {
@@ -805,17 +1011,15 @@
       async function saveUserData() {
         if (!db || !currentUser || isLoadingUserData) return;
         try {
-          await setDoc(
-            doc(db, "userData", currentUser.uid),
-            {
+          await apiRequest("/api/user-data", {
+            method: "PUT",
+            body: JSON.stringify({
               personalTasks: state.personalTasks,
               dailyPlans: state.dailyPlans,
               dailyNotes: state.dailyNotes,
               dataVersion: personalDataVersion,
-              updatedAt: serverTimestamp(),
-            },
-            { merge: true }
-          );
+            }),
+          });
         } catch (err) {
           console.warn("Sinkron data pribadi gagal. Data tetap tersimpan di browser.", err);
           syncStatus.textContent = "Tersimpan di perangkat; sinkronisasi sedang tertunda.";
@@ -942,7 +1146,49 @@
           empty.className = "rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500";
           empty.textContent = "Belum ada rundown. Tambahkan aktivitas pertama dari bangun tidur sampai waktu istirahat.";
           plannerList.appendChild(empty);
-          return;
+        }
+
+        const datePersonalTasks = state.personalTasks[dateKey] || [];
+        if (datePersonalTasks.length || items.length) {
+          const taskSection = document.createElement("li");
+          taskSection.className = "mt-4 rounded-xl border border-blue-200 bg-blue-50/60 p-3";
+
+          const taskTitle = document.createElement("div");
+          taskTitle.className = "mb-2 flex items-center justify-between gap-2";
+          const taskHeading = document.createElement("h4");
+          taskHeading.className = "text-xs font-bold uppercase tracking-wide text-blue-700";
+          taskHeading.textContent = "Detail Tugas";
+
+          const taskCount = document.createElement("span");
+          taskCount.className = "rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700";
+          taskCount.textContent = `${datePersonalTasks.length} item`;
+
+          taskTitle.append(taskHeading, taskCount);
+          taskSection.appendChild(taskTitle);
+
+          if (!datePersonalTasks.length) {
+            const emptyTasks = document.createElement("p");
+            emptyTasks.className = "text-sm text-slate-500";
+            emptyTasks.textContent = "Belum ada tugas tambahan untuk hari ini.";
+            taskSection.appendChild(emptyTasks);
+          } else {
+            const taskList = document.createElement("ul");
+            taskList.className = "space-y-2";
+            datePersonalTasks.forEach((task) => {
+              const taskItem = document.createElement("li");
+              taskItem.className = "flex items-center gap-2 rounded-lg bg-white px-2.5 py-2 text-sm text-slate-700 shadow-sm ring-1 ring-blue-100";
+              const taskDot = document.createElement("span");
+              taskDot.className = "h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500";
+              const taskText = document.createElement("span");
+              taskText.className = "break-words";
+              taskText.textContent = task;
+              taskItem.append(taskDot, taskText);
+              taskList.appendChild(taskItem);
+            });
+            taskSection.appendChild(taskList);
+          }
+
+          plannerList.appendChild(taskSection);
         }
 
         items.forEach((item) => {
@@ -1120,16 +1366,26 @@
             cell.date.getFullYear() === now.getFullYear();
 
           const dateKey = formatDateKey(cell.date);
+          const selectedKey = plannerDateInput.value || formatDateKey(now);
           const tasks = state.personalTasks[dateKey] || [];
           const holiday = nationalHolidays[dateKey];
           const dailyPlans = state.dailyPlans[dateKey] || [];
           const dailyNotes = state.dailyNotes[dateKey] || [];
           const dailyCompleted = dailyPlans.filter((item) => item.completed).length;
+          const isSelected = dateKey === selectedKey;
 
           const cellEl = document.createElement("div");
-          cellEl.className = `calendar-cell border-b border-r border-slate-200 p-2 ${
+          cellEl.className = `calendar-cell border-b border-r border-slate-200 p-2 cursor-pointer transition ${
             cell.muted ? "bg-slate-50 text-slate-400" : holiday ? "bg-red-50/40" : "bg-white"
-          }`;
+          } ${isSelected ? "ring-2 ring-inset ring-blue-300 bg-blue-50/60" : ""}`;
+          cellEl.title = `Lihat detail untuk ${dateKey}`;
+          cellEl.addEventListener("click", () => {
+            plannerDateInput.value = dateKey;
+            dailyNoteDateInput.value = dateKey;
+            renderDailyPlanner();
+            renderDailyNotes();
+            renderCalendar();
+          });
 
           const header = document.createElement("div");
           header.className = "mb-1 flex items-center justify-between";
@@ -1268,7 +1524,8 @@
             remove.textContent = "Hapus";
             remove.addEventListener("click", async () => {
             if (!db || !isAdmin) return;
-              await deleteDoc(doc(db, "events", event.id));
+              await apiRequest(`/api/events/${encodeURIComponent(event.id)}`, { method: "DELETE" });
+              await loadSharedData();
             });
 
             item.append(content, remove);
@@ -1347,14 +1604,15 @@
       }
 
       async function updateScheduleLessons(day, updater) {
-        const dayRef = doc(db, "schedule", day);
-        await runTransaction(db, async (transaction) => {
-          const snapshot = await transaction.get(dayRef);
-          const current = snapshot.exists() && Array.isArray(snapshot.data().lessons)
-            ? snapshot.data().lessons
-            : [];
-          transaction.set(dayRef, { lessons: updater(current) }, { merge: true });
+        const current = state.schedule[day] && Array.isArray(state.schedule[day].lessons)
+          ? state.schedule[day].lessons
+          : [];
+        const saved = await apiRequest(`/api/schedule/${encodeURIComponent(day)}`, {
+          method: "PUT",
+          body: JSON.stringify({ lessons: updater(current) }),
         });
+        state.schedule[day] = saved;
+        renderTodaySchedule();
       }
 
       function renderAnnouncements() {
@@ -1392,7 +1650,8 @@
             remove.textContent = "Hapus";
             remove.addEventListener("click", async () => {
             if (!db || !isAdmin) return;
-              await deleteDoc(doc(db, "announcements", item.id));
+              await apiRequest(`/api/announcements/${encodeURIComponent(item.id)}`, { method: "DELETE" });
+              await loadSharedData();
             });
             row.append(text, remove);
             editor.appendChild(row);
@@ -1415,7 +1674,10 @@
             logoutBtn.textContent = "Logout Admin";
             document.body.appendChild(logoutBtn);
             logoutBtn.addEventListener("click", async () => {
-              if (auth) await signOut(auth);
+              if (auth) {
+                await apiRequest("/api/logout", { method: "POST" });
+                await applySession(null);
+              }
             });
           }
         } else if (logoutBtn) {
@@ -1423,106 +1685,263 @@
         }
       }
 
-      function initFirebase() {
-        const configInvalid = Object.values(firebaseConfig).some((v) => !v || String(v).startsWith("PASTE_"));
+      async function applySession(user) {
+        currentUser = user;
+        isAdmin = !!(user && user.isAdmin);
+        updateAdminUI();
+        userAccountForm.classList.toggle("hidden", !!user);
+        userLogoutBtn.classList.toggle("hidden", !user);
 
-        if (configInvalid) {
-          userAccountMsg.textContent = "Firebase belum dikonfigurasi. Isi firebaseConfig di script.";
-          return;
-        }
-
-        const app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        onAuthStateChanged(auth, async (user) => {
-          currentUser = user;
+        if (user) {
+          const guestData = readPersonalData("guest");
+          loadPersonalData(`user:${user.id}`);
+          userAccountMsg.textContent = `Sinkron aktif untuk ${user.email}`;
+          syncStatus.textContent = "Memuat data akun…";
           try {
-            isAdmin = user ? (await getDoc(doc(db, "admins", user.uid))).exists() : false;
-          } catch (err) {
-            console.warn("Hak akses akun tidak dapat diperiksa.", err);
-            isAdmin = false;
-            syncStatus.textContent = "Hak akses akun belum dapat diperiksa.";
-          }
-          updateAdminUI();
-          userAccountForm.classList.toggle("hidden", !!user);
-          userLogoutBtn.classList.toggle("hidden", !user);
-
-          if (user) {
-            const guestData = readPersonalData("guest");
-            loadPersonalData(`user:${user.uid}`);
-            userAccountMsg.textContent = `Sinkron aktif untuk ${user.email}`;
-            syncStatus.textContent = "Memuat data akun…";
-            if (userDataUnsubscribe) userDataUnsubscribe();
-            userDataUnsubscribe = onSnapshot(doc(db, "userData", user.uid), async (snapshot) => {
-              isLoadingUserData = true;
-              const remoteData = snapshot.exists() ? snapshot.data() : {};
-              const adoptedGuestData = adoptGuestDataWhenAccountIsEmpty(guestData, remoteData);
-              const winner = adoptedGuestData ? "local" : mergePersonalData(remoteData);
-              isLoadingUserData = false;
-              renderCalendar();
-              renderDailyPlanner();
-              renderDailyNotes();
-              if (!snapshot.exists() || winner === "local") await saveUserData();
-              syncStatus.textContent = adoptedGuestData
-                ? "Data laptop sudah dipindahkan ke akun dan tersinkron."
-                : "Data akun sudah tersinkron.";
-            }, (err) => {
-              console.warn("Data akun tidak dapat dimuat.", err);
-              isLoadingUserData = false;
-              syncStatus.textContent = "Data akun tidak dapat dimuat; memakai salinan perangkat.";
-            });
-          } else {
-            currentUser = null;
-            if (userDataUnsubscribe) {
-              userDataUnsubscribe();
-              userDataUnsubscribe = null;
-            }
-            loadPersonalData("guest");
-            userAccountMsg.textContent = "Login dengan akun yang sudah dibuat di Firebase.";
-            syncStatus.textContent = "Mode perangkat: data tidak dikirim ke akun mana pun.";
+            isLoadingUserData = true;
+            const remoteData = await apiRequest("/api/user-data");
+            const adoptedGuestData = adoptGuestDataWhenAccountIsEmpty(guestData, remoteData);
+            const winner = adoptedGuestData ? "local" : mergePersonalData(remoteData);
+            isLoadingUserData = false;
             renderCalendar();
             renderDailyPlanner();
             renderDailyNotes();
+            if (!remoteData.dataVersion || winner === "local") await saveUserData();
+            syncStatus.textContent = adoptedGuestData
+              ? "Data laptop sudah dipindahkan ke akun dan tersinkron."
+              : "Data akun sudah tersinkron.";
+          } catch (err) {
+            console.warn("Data akun tidak dapat dimuat.", err);
+            isLoadingUserData = false;
+            syncStatus.textContent = "Data akun tidak dapat dimuat; memakai salinan perangkat.";
           }
-
-          if (isAdmin) {
-            closeModal("loginModal");
-          } else if (user) {
-            closeModal("loginModal");
-          }
-        });
-
-        const eventsQuery = query(collection(db, "events"), orderBy("date", "asc"));
-        onSnapshot(eventsQuery, (snapshot) => {
-          state.events = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-          renderEvents();
-        }, (err) => {
-          console.warn("Acara tidak dapat dimuat.", err);
-          eventsList.innerHTML = '<li class="rounded-lg bg-red-50 p-3 text-red-700">Acara tidak dapat dimuat. Periksa koneksi lalu coba lagi.</li>';
-        });
-
-        onSnapshot(collection(db, "schedule"), (snapshot) => {
-          const scheduleObj = {};
-          snapshot.docs.forEach((d) => {
-            scheduleObj[d.id] = d.data();
-          });
-          state.schedule = scheduleObj;
-          renderTodaySchedule();
-        }, (err) => {
-          console.warn("Jadwal tidak dapat dimuat.", err);
-          todayScheduleTable.innerHTML = '<tr><td colspan="3" class="px-3 py-3 text-center text-red-700">Jadwal tidak dapat dimuat.</td></tr>';
-        });
-
-        const annQuery = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
-        onSnapshot(annQuery, (snapshot) => {
-          state.announcements = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-          renderAnnouncements();
-        }, (err) => {
-          console.warn("Pengingat tidak dapat dimuat.", err);
-          announcementList.innerHTML = '<li class="rounded-lg bg-red-50 p-3 text-red-700">Pengingat tidak dapat dimuat.</li>';
-        });
+          closeModal("loginModal");
+        } else {
+          loadPersonalData("guest");
+          userAccountMsg.textContent = "Login dengan akun yang sudah dibuat di server.";
+          syncStatus.textContent = "Mode perangkat: data tidak dikirim ke akun mana pun.";
+          renderCalendar();
+          renderDailyPlanner();
+          renderDailyNotes();
+        }
       }
+
+      async function loadSharedData() {
+        try {
+          const [events, schedule, announcements] = await Promise.all([
+            apiRequest("/api/events"),
+            apiRequest("/api/schedule"),
+            apiRequest("/api/announcements"),
+          ]);
+          state.events = Array.isArray(events) ? events : [];
+          state.schedule = schedule && typeof schedule === "object" ? schedule : {};
+          state.announcements = Array.isArray(announcements) ? announcements : [];
+          renderEvents();
+          renderTodaySchedule();
+          renderAnnouncements();
+        } catch (err) {
+          console.warn("Data bersama tidak dapat dimuat.", err);
+          eventsList.innerHTML = '<li class="rounded-lg bg-red-50 p-3 text-red-700">Acara tidak dapat dimuat. Periksa koneksi lalu coba lagi.</li>';
+          todayScheduleTable.innerHTML = '<tr><td colspan="3" class="px-3 py-3 text-center text-red-700">Jadwal tidak dapat dimuat.</td></tr>';
+          announcementList.innerHTML = '<li class="rounded-lg bg-red-50 p-3 text-red-700">Pengingat tidak dapat dimuat.</li>';
+        }
+      }
+
+      async function initBackend() {
+        db = true;
+        auth = true;
+        try {
+          const sessionData = await apiRequest("/api/me");
+          await applySession(sessionData.user);
+        } catch (err) {
+          console.warn("Session belum dapat diperiksa.", err);
+          await applySession(null);
+        }
+        await loadSharedData();
+      }
+
+      const timePickerState = {
+        fieldId: "plannerStart",
+        mode: "hour",
+        hour: 8,
+        minute: 0,
+      };
+
+      function timeValueToParts(value) {
+        const [hourText, minuteText] = String(value || "08:00").split(":");
+        const hour = Number(hourText) || 0;
+        const minute = Number(minuteText) || 0;
+        return {
+          hour: Math.min(Math.max(hour, 0), 23),
+          minute: Math.min(Math.max(minute, 0), 59),
+        };
+      }
+
+      function formatTimeParts(hour, minute) {
+        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+      }
+
+      function timeToMinutes(value) {
+        const { hour, minute } = timeValueToParts(value);
+        return hour * 60 + minute;
+      }
+
+      function minutesToTime(totalMinutes) {
+        const clamped = Math.min(Math.max(totalMinutes, 0), 23 * 60 + 59);
+        return formatTimeParts(Math.floor(clamped / 60), clamped % 60);
+      }
+
+      function pickerMinutes() {
+        return timePickerState.hour * 60 + timePickerState.minute;
+      }
+
+      function timeBoundaryFor(fieldId) {
+        if (fieldId === "plannerEnd") {
+          const min = Math.min(timeToMinutes(document.getElementById("plannerStart").value) + 5, 23 * 60 + 59);
+          return { min, max: 23 * 60 + 59 };
+        }
+        return { min: 0, max: 23 * 60 + 54 };
+      }
+
+      function syncEndAfterStartChange() {
+        const startMinutes = timeToMinutes(document.getElementById("plannerStart").value);
+        const endMinutes = timeToMinutes(document.getElementById("plannerEnd").value);
+        if (endMinutes <= startMinutes) {
+          updateTimeFieldDisplay("plannerEnd", minutesToTime(startMinutes + 5));
+        }
+      }
+
+      function updateTimeDisplay() {
+        const { hour, minute } = timePickerState;
+        const value = formatTimeParts(hour, minute);
+        document.getElementById("timeDisplay").textContent = value;
+        document.getElementById("timeHourValue").textContent = String(hour).padStart(2, "0");
+        document.getElementById("timeMinuteValue").textContent = String(minute).padStart(2, "0");
+        const hint = document.getElementById("timePickerHint");
+        if (timePickerState.fieldId === "plannerEnd") {
+          hint.textContent = `Minimal selesai ${minutesToTime(timeBoundaryFor("plannerEnd").min)}`;
+        } else {
+          hint.textContent = "Durasi minimal aktivitas 5 menit";
+        }
+      }
+
+      function normalizeTime() {
+        const boundary = timeBoundaryFor(timePickerState.fieldId);
+        const nextMinutes = Math.min(Math.max(pickerMinutes(), boundary.min), boundary.max);
+        timePickerState.hour = Math.floor(nextMinutes / 60);
+        timePickerState.minute = nextMinutes % 60;
+      }
+
+      function setTimePickerValue(hour, minute) {
+        timePickerState.hour = hour;
+        timePickerState.minute = minute;
+        normalizeTime();
+        updateTimeDisplay();
+        updateDialNumbers();
+      }
+
+      function updateDialNumbers() {
+        const dial = document.getElementById("timePickerDial");
+        const hand = document.getElementById("timePickerHand");
+        const values = timePickerState.mode === "hour"
+          ? Array.from({ length: 24 }, (_, i) => i)
+          : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
+        dial.replaceChildren();
+        const centerX = 145;
+        const centerY = 145;
+        const radius = 103;
+
+        values.forEach((item, index) => {
+          const angle = (-Math.PI / 2) + (index / values.length) * (Math.PI * 2);
+          const x = centerX + Math.cos(angle) * radius;
+          const y = centerY + Math.sin(angle) * radius;
+
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "time-picker-number";
+          if (timePickerState.mode === "hour") {
+            if (item === timePickerState.hour) button.classList.add("selected");
+          } else {
+            if (item === timePickerState.minute) button.classList.add("selected");
+          }
+
+          button.style.left = `${x}px`;
+          button.style.top = `${y}px`;
+          button.textContent = String(item).padStart(2, "0");
+          const boundary = timeBoundaryFor(timePickerState.fieldId);
+          const candidateMinutes = timePickerState.mode === "hour"
+            ? item * 60 + timePickerState.minute
+            : timePickerState.hour * 60 + item;
+          button.disabled = candidateMinutes < boundary.min || candidateMinutes > boundary.max;
+          button.addEventListener("click", () => {
+            if (button.disabled) return;
+            if (timePickerState.mode === "hour") {
+              setTimePickerValue(item, timePickerState.minute);
+            } else {
+              setTimePickerValue(timePickerState.hour, item);
+            }
+          });
+          dial.appendChild(button);
+        });
+
+        const handAngle = timePickerState.mode === "hour"
+          ? timePickerState.hour * 15
+          : timePickerState.minute * 6;
+        hand.style.transform = `translate(-50%, -100%) rotate(${handAngle}deg)`;
+      }
+
+      function openTimePicker(targetFieldId) {
+        const currentValue = document.getElementById(targetFieldId)?.value || "08:00";
+        const parts = timeValueToParts(currentValue);
+        timePickerState.fieldId = targetFieldId;
+        timePickerState.hour = parts.hour;
+        timePickerState.minute = parts.minute;
+        timePickerState.mode = "hour";
+        document.getElementById("timePickerTitle").textContent = targetFieldId === "plannerStart" ? "Waktu mulai" : "Waktu selesai";
+        document.querySelectorAll(".time-mode-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.timeMode === "hour");
+        });
+        setTimePickerValue(parts.hour, parts.minute);
+        openModal("timePickerModal");
+      }
+
+      document.querySelectorAll(".time-input-trigger").forEach((button) => {
+        button.addEventListener("click", () => openTimePicker(button.dataset.target));
+      });
+
+      document.querySelectorAll(".time-mode-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          timePickerState.mode = button.dataset.timeMode;
+          document.querySelectorAll(".time-mode-btn").forEach((item) => {
+            item.classList.toggle("active", item === button);
+          });
+          updateDialNumbers();
+        });
+      });
+
+      document.querySelectorAll("[data-time-adjust]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const [unit, amountText] = button.dataset.timeAdjust.split(":");
+          const amount = Number(amountText);
+          if (unit === "hour") setTimePickerValue(timePickerState.hour + amount, timePickerState.minute);
+          if (unit === "minute") setTimePickerValue(timePickerState.hour, timePickerState.minute + amount);
+        });
+      });
+
+      document.querySelectorAll("[data-time-preset]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const parts = timeValueToParts(button.dataset.timePreset);
+          setTimePickerValue(parts.hour, parts.minute);
+        });
+      });
+
+      document.getElementById("timePickerSet").addEventListener("click", () => {
+        const value = formatTimeParts(timePickerState.hour, timePickerState.minute);
+        updateTimeFieldDisplay(timePickerState.fieldId, value);
+        if (timePickerState.fieldId === "plannerStart") syncEndAfterStartChange();
+        closeModal("timePickerModal");
+      });
 
       // ===== Event bindings =====
       document.getElementById("prevMonthBtn").addEventListener("click", () => {
@@ -1549,10 +1968,10 @@
         const detail = document.getElementById("plannerDetail").value.trim();
         const formError = document.getElementById("plannerFormError");
         if (!dateKey || !start || !end || !activity) return;
-        if (end <= start) {
+        if (timeToMinutes(end) <= timeToMinutes(start)) {
           formError.textContent = "Jam selesai harus lebih akhir dari jam mulai.";
           formError.classList.remove("hidden");
-          document.getElementById("plannerEnd").focus();
+          openTimePicker("plannerEnd");
           return;
         }
         formError.classList.add("hidden");
@@ -1568,6 +1987,8 @@
         });
         saveDailyPlans();
         e.target.reset();
+        updateTimeFieldDisplay("plannerStart", "08:00");
+        updateTimeFieldDisplay("plannerEnd", "09:00");
         renderDailyPlanner();
         renderCalendar();
       });
@@ -1635,28 +2056,31 @@
       userAccountForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         if (!auth) {
-          userAccountMsg.textContent = "Firebase belum siap. Cek konfigurasi.";
+          userAccountMsg.textContent = "Server belum siap. Cek konfigurasi.";
           return;
         }
         const email = document.getElementById("userEmail").value.trim();
         const password = document.getElementById("userPassword").value;
         try {
-          await signInWithEmailAndPassword(auth, email, password);
+          const user = await apiRequest("/api/login", {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+          });
           userAccountMsg.textContent = "Login berhasil. Data sedang disinkronkan.";
           e.target.reset();
+          await applySession(user);
         } catch (err) {
-          const friendlyLoginErrors = {
-            "auth/invalid-credential": "Email atau password salah.",
-            "auth/invalid-email": "Format email tidak valid.",
-            "auth/too-many-requests": "Terlalu banyak percobaan. Tunggu beberapa saat lalu coba lagi.",
-            "auth/network-request-failed": "Koneksi bermasalah. Periksa internet lalu coba lagi.",
-          };
-          userAccountMsg.textContent = friendlyLoginErrors[err.code] || "Login belum berhasil. Silakan coba lagi.";
+          userAccountMsg.textContent = err.status === 401
+            ? "Email atau password salah."
+            : "Login belum berhasil. Silakan coba lagi.";
         }
       });
 
       userLogoutBtn.addEventListener("click", async () => {
-        if (auth) await signOut(auth);
+        if (auth) {
+          await apiRequest("/api/logout", { method: "POST" });
+          await applySession(null);
+        }
       });
 
       document.getElementById("taskForm").addEventListener("submit", (e) => {
@@ -1682,11 +2106,11 @@
         const title = document.getElementById("eventTitle").value.trim();
         if (!date || !title) return;
 
-        await addDoc(collection(db, "events"), {
-          date,
-          title,
-          createdAt: serverTimestamp(),
+        await apiRequest("/api/events", {
+          method: "POST",
+          body: JSON.stringify({ date, title }),
         });
+        await loadSharedData();
         e.target.reset();
       });
 
@@ -1715,10 +2139,11 @@
         const text = document.getElementById("announcementText").value.trim();
         if (!text) return;
 
-        await addDoc(collection(db, "announcements"), {
-          text,
-          createdAt: serverTimestamp(),
+        await apiRequest("/api/announcements", {
+          method: "POST",
+          body: JSON.stringify({ text }),
         });
+        await loadSharedData();
 
         e.target.reset();
       });
@@ -1730,7 +2155,8 @@
       document.getElementById("scheduleDay").value = dayMap[new Date().getDay()];
       renderTodaySchedule();
       renderAnnouncements();
-      initFirebase();
+      initBackend();
+      window.setInterval(loadSharedData, 30_000);
       window.setInterval(refreshForDateChange, 60_000);
       if (window.lucide) window.lucide.createIcons();
     </script>
