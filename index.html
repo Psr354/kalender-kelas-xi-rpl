@@ -71,6 +71,116 @@
         animation: reward-pop 320ms ease-out;
       }
 
+      .time-input-trigger {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 600;
+        min-height: 44px;
+        padding: 0.7rem 0.9rem;
+        text-align: left;
+        width: 100%;
+      }
+
+      .time-input-trigger:focus-visible,
+      .time-input-trigger:hover {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        outline: none;
+      }
+
+      .time-picker-modal {
+        backdrop-filter: blur(2px);
+      }
+
+      .time-period-btn,
+      .time-mode-btn {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        min-height: 40px;
+        padding: 0.5rem 0.8rem;
+      }
+
+      .time-period-btn.active,
+      .time-mode-btn.active {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        color: #1d4ed8;
+      }
+
+      .time-picker-face {
+        background: #e2e8f0;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        height: 282px;
+        margin: 0 auto;
+        position: relative;
+        width: 282px;
+      }
+
+      .time-picker-face::before {
+        background: rgba(255, 255, 255, 0.42);
+        border-radius: 50%;
+        content: "";
+        inset: 16px;
+        position: absolute;
+      }
+
+      .time-picker-number {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 50%;
+        color: #0f172a;
+        display: inline-flex;
+        font-size: 1rem;
+        font-weight: 700;
+        height: 44px;
+        justify-content: center;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        width: 44px;
+      }
+
+      .time-picker-number.selected {
+        background: #2563eb;
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.24);
+      }
+
+      .time-picker-number:disabled {
+        color: #94a3b8;
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .time-picker-hand {
+        background: #64748b;
+        border-radius: 999px;
+        height: 86px;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform-origin: center 100%;
+        width: 5px;
+      }
+
+      .time-picker-hand::after {
+        background: #2563eb;
+        border-radius: 50%;
+        content: "";
+        height: 14px;
+        left: 50%;
+        position: absolute;
+        top: -8px;
+        transform: translateX(-50%);
+        width: 14px;
+      }
+
       .celebration-piece {
         animation: celebration 900ms ease-out forwards;
         border-radius: 2px;
@@ -265,8 +375,18 @@
 
             <div class="p-4 sm:p-6">
               <form id="plannerForm" class="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-12">
-                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Mulai <span class="text-red-600">*</span><input id="plannerStart" type="time" value="08:00" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
-                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Selesai <span class="text-red-600">*</span><input id="plannerEnd" type="time" value="09:00" min="08:05" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
+                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Mulai <span class="text-red-600">*</span>
+                  <button type="button" class="time-input-trigger mt-1" data-target="plannerStart" aria-label="Pilih waktu mulai">
+                    <span id="plannerStartText">08:00</span>
+                  </button>
+                  <input id="plannerStart" type="hidden" value="08:00" required />
+                </label>
+                <label class="text-xs font-semibold text-slate-600 md:col-span-2">Selesai <span class="text-red-600">*</span>
+                  <button type="button" class="time-input-trigger mt-1" data-target="plannerEnd" aria-label="Pilih waktu selesai">
+                    <span id="plannerEndText">09:00</span>
+                  </button>
+                  <input id="plannerEnd" type="hidden" value="09:00" required />
+                </label>
                 <label class="text-xs font-semibold text-slate-600 md:col-span-4">Aktivitas <span class="text-red-600">*</span><input id="plannerActivity" type="text" maxlength="80" placeholder="Contoh: Sarapan dan bersiap" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
                 <label class="text-xs font-semibold text-slate-600 md:col-span-4">Detail<input id="plannerDetail" type="text" maxlength="140" placeholder="Target atau catatan kecil" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" /></label>
                 <p id="plannerFormError" class="hidden text-sm font-medium text-red-600 md:col-span-12" role="alert"></p>
@@ -275,6 +395,37 @@
               <ol id="plannerList" class="mt-4 space-y-2"></ol>
             </div>
           </article>
+          <div id="timePickerModal" class="time-picker-modal fixed inset-0 z-[60] hidden items-center justify-center bg-slate-900/50 p-4">
+            <div class="card-soft w-full max-w-sm p-5">
+              <div class="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold text-blue-600">Pilih waktu</p>
+                  <h4 id="timePickerTitle" class="text-lg font-semibold text-slate-800">Waktu</h4>
+                </div>
+                <button type="button" class="closeModal rounded bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">Tutup</button>
+              </div>
+              <div class="mb-4 rounded-lg bg-slate-100 px-3 py-3 text-center">
+                <div id="timeDisplay" class="text-4xl font-bold tabular-nums text-slate-900">08:00</div>
+                <p id="timePickerHint" class="mt-1 text-xs font-semibold text-slate-500">Putaran 00-11</p>
+              </div>
+              <div class="mb-3 grid grid-cols-2 gap-2">
+                <button type="button" class="time-period-btn active" data-time-period="0">00-11</button>
+                <button type="button" class="time-period-btn" data-time-period="12">12-23</button>
+              </div>
+              <div class="mb-4 grid grid-cols-2 gap-2">
+                <button type="button" data-time-mode="hour" class="time-mode-btn active">Jam</button>
+                <button type="button" data-time-mode="minute" class="time-mode-btn">Menit</button>
+              </div>
+              <div class="time-picker-face">
+                <div id="timePickerDial" class="h-full w-full"></div>
+                <div id="timePickerHand" class="time-picker-hand" style="transform: translate(-50%, -100%) rotate(0deg);"></div>
+              </div>
+              <div class="mt-4 flex items-center justify-between gap-3">
+                <button type="button" class="closeModal rounded-lg border border-slate-200 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">Batal</button>
+                <button id="timePickerSet" type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Setel</button>
+              </div>
+            </div>
+          </div>
           <article id="pengingat" class="card-soft order-3 p-4 sm:p-5 lg:order-4 lg:col-span-7">
             <div class="mb-3 flex items-center justify-between">
               <h3 class="text-sm font-bold tracking-wide text-slate-700">PENGINGAT UMUM</h3>
@@ -614,7 +765,7 @@
       const userAccountMsg = document.getElementById("userAccountMsg");
       const syncStatus = document.getElementById("syncStatus");
 
-      const allModals = ["loginModal", "taskModal", "eventsModal", "scheduleModal", "announcementsModal"];
+      const allModals = ["loginModal", "taskModal", "eventsModal", "scheduleModal", "announcementsModal", "timePickerModal"];
 
       function updateTimeFieldDisplay(fieldId, value) {
         const input = document.getElementById(fieldId);
@@ -1571,16 +1722,121 @@
       }
 
       function syncEndAfterStartChange() {
-        const startInput = document.getElementById("plannerStart");
         const endInput = document.getElementById("plannerEnd");
-        const startMinutes = timeToMinutes(document.getElementById("plannerStart").value);
+        const startInput = document.getElementById("plannerStart");
+        const startMinutes = Math.min(timeToMinutes(startInput.value), 23 * 60 + 54);
         const endMinutes = timeToMinutes(document.getElementById("plannerEnd").value);
+        if (timeToMinutes(startInput.value) !== startMinutes) updateTimeFieldDisplay("plannerStart", minutesToTime(startMinutes));
         const minEnd = Math.min(startMinutes + 5, 23 * 60 + 59);
-        endInput.min = minutesToTime(minEnd);
-        startInput.max = "23:54";
-        if (endMinutes <= startMinutes) {
-          endInput.value = minutesToTime(minEnd);
+        if (endMinutes - startMinutes < 5) {
+          updateTimeFieldDisplay("plannerEnd", minutesToTime(minEnd));
         }
+      }
+
+      const timePickerState = {
+        fieldId: "plannerStart",
+        mode: "hour",
+        period: 0,
+        hour: 8,
+        minute: 0,
+      };
+
+      function clampPickerTime() {
+        const min = timePickerState.fieldId === "plannerEnd"
+          ? Math.min(timeToMinutes(document.getElementById("plannerStart").value) + 5, 23 * 60 + 59)
+          : 0;
+        const max = timePickerState.fieldId === "plannerStart" ? 23 * 60 + 54 : 23 * 60 + 59;
+        const nextMinutes = Math.min(Math.max(timePickerState.hour * 60 + timePickerState.minute, min), max);
+        timePickerState.hour = Math.floor(nextMinutes / 60);
+        timePickerState.minute = nextMinutes % 60;
+        timePickerState.period = timePickerState.hour >= 12 ? 12 : 0;
+      }
+
+      function updateTimeDisplay() {
+        clampPickerTime();
+        const display = formatTimeParts(timePickerState.hour, timePickerState.minute);
+        document.getElementById("timeDisplay").textContent = display;
+        const hint = document.getElementById("timePickerHint");
+        hint.textContent = timePickerState.fieldId === "plannerEnd"
+          ? `Minimal selesai ${minutesToTime(timeToMinutes(document.getElementById("plannerStart").value) + 5)}`
+          : `Putaran ${timePickerState.period === 12 ? "12-23" : "00-11"}`;
+        document.querySelectorAll(".time-period-btn").forEach((button) => {
+          button.classList.toggle("active", Number(button.dataset.timePeriod) === timePickerState.period);
+        });
+      }
+
+      function setTimePickerValue(hour, minute) {
+        timePickerState.hour = hour;
+        timePickerState.minute = minute;
+        updateTimeDisplay();
+        updateDialNumbers();
+      }
+
+      function hourFromDial(value) {
+        return timePickerState.period + (value === 12 ? 0 : value);
+      }
+
+      function updateDialNumbers() {
+        const dial = document.getElementById("timePickerDial");
+        const hand = document.getElementById("timePickerHand");
+        const values = timePickerState.mode === "hour"
+          ? [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+          : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+        const boundaryMin = timePickerState.fieldId === "plannerEnd"
+          ? Math.min(timeToMinutes(document.getElementById("plannerStart").value) + 5, 23 * 60 + 59)
+          : 0;
+        const boundaryMax = timePickerState.fieldId === "plannerStart" ? 23 * 60 + 54 : 23 * 60 + 59;
+
+        dial.replaceChildren();
+        values.forEach((item, index) => {
+          const angle = (-Math.PI / 2) + (index / values.length) * (Math.PI * 2);
+          const x = 141 + Math.cos(angle) * 100;
+          const y = 141 + Math.sin(angle) * 100;
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "time-picker-number";
+          button.style.left = `${x}px`;
+          button.style.top = `${y}px`;
+
+          const candidateHour = timePickerState.mode === "hour" ? hourFromDial(item) : timePickerState.hour;
+          const candidateMinute = timePickerState.mode === "minute" ? item : timePickerState.minute;
+          const candidateMinutes = candidateHour * 60 + candidateMinute;
+          button.disabled = candidateMinutes < boundaryMin || candidateMinutes > boundaryMax;
+          button.textContent = timePickerState.mode === "hour"
+            ? String(item).padStart(2, "0")
+            : String(item).padStart(2, "0");
+          const selected = timePickerState.mode === "hour"
+            ? candidateHour === timePickerState.hour
+            : item === timePickerState.minute;
+          if (selected) button.classList.add("selected");
+          button.addEventListener("click", () => {
+            if (button.disabled) return;
+            if (timePickerState.mode === "hour") setTimePickerValue(candidateHour, timePickerState.minute);
+            else setTimePickerValue(timePickerState.hour, item);
+          });
+          dial.appendChild(button);
+        });
+
+        const handAngle = timePickerState.mode === "hour"
+          ? ((timePickerState.hour % 12) || 0) * 30
+          : timePickerState.minute * 6;
+        hand.style.transform = `translate(-50%, -100%) rotate(${handAngle}deg)`;
+      }
+
+      function openTimePicker(targetFieldId) {
+        const parts = timeValueToParts(document.getElementById(targetFieldId).value);
+        timePickerState.fieldId = targetFieldId;
+        timePickerState.mode = "hour";
+        timePickerState.hour = parts.hour;
+        timePickerState.minute = parts.minute;
+        timePickerState.period = parts.hour >= 12 ? 12 : 0;
+        document.getElementById("timePickerTitle").textContent = targetFieldId === "plannerStart" ? "Waktu mulai" : "Waktu selesai";
+        document.querySelectorAll(".time-mode-btn").forEach((button) => {
+          button.classList.toggle("active", button.dataset.timeMode === "hour");
+        });
+        updateTimeDisplay();
+        updateDialNumbers();
+        openModal("timePickerModal");
       }
 
       // ===== Event bindings =====
@@ -1598,8 +1854,30 @@
       plannerDateInput.addEventListener("change", renderDailyPlanner);
       dailyNoteDateInput.value = formatDateKey(new Date());
       dailyNoteDateInput.addEventListener("change", renderDailyNotes);
-      document.getElementById("plannerStart").addEventListener("change", syncEndAfterStartChange);
-      document.getElementById("plannerEnd").addEventListener("change", syncEndAfterStartChange);
+      document.querySelectorAll(".time-input-trigger").forEach((button) => {
+        button.addEventListener("click", () => openTimePicker(button.dataset.target));
+      });
+      document.querySelectorAll(".time-period-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          timePickerState.period = Number(button.dataset.timePeriod);
+          const dialHour = timePickerState.hour % 12 || 12;
+          setTimePickerValue(hourFromDial(dialHour), timePickerState.minute);
+        });
+      });
+      document.querySelectorAll(".time-mode-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+          timePickerState.mode = button.dataset.timeMode;
+          document.querySelectorAll(".time-mode-btn").forEach((item) => {
+            item.classList.toggle("active", item === button);
+          });
+          updateDialNumbers();
+        });
+      });
+      document.getElementById("timePickerSet").addEventListener("click", () => {
+        updateTimeFieldDisplay(timePickerState.fieldId, formatTimeParts(timePickerState.hour, timePickerState.minute));
+        if (timePickerState.fieldId === "plannerStart") syncEndAfterStartChange();
+        closeModal("timePickerModal");
+      });
       syncEndAfterStartChange();
 
       document.getElementById("plannerForm").addEventListener("submit", (e) => {
@@ -1611,8 +1889,8 @@
         const detail = document.getElementById("plannerDetail").value.trim();
         const formError = document.getElementById("plannerFormError");
         if (!dateKey || !start || !end || !activity) return;
-        if (timeToMinutes(end) <= timeToMinutes(start)) {
-          formError.textContent = "Jam selesai harus lebih akhir dari jam mulai.";
+        if (timeToMinutes(end) - timeToMinutes(start) < 5) {
+          formError.textContent = "Jam selesai minimal 5 menit setelah jam mulai.";
           formError.classList.remove("hidden");
           document.getElementById("plannerEnd").focus();
           return;
