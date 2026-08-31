@@ -390,7 +390,8 @@
                 <label class="text-xs font-semibold text-slate-600 md:col-span-4">Aktivitas <span class="text-red-600">*</span><input id="plannerActivity" type="text" maxlength="80" placeholder="Contoh: Sarapan dan bersiap" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" required /></label>
                 <label class="text-xs font-semibold text-slate-600 md:col-span-4">Detail<input id="plannerDetail" type="text" maxlength="140" placeholder="Target atau catatan kecil" class="mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base font-normal placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" /></label>
                 <p id="plannerFormError" class="hidden text-sm font-medium text-red-600 md:col-span-12" role="alert"></p>
-                <button class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 md:col-span-3 md:col-start-10" type="submit"><i data-lucide="plus" class="h-4 w-4" aria-hidden="true"></i>Tambah aktivitas</button>
+                <button id="plannerSubmitBtn" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 md:col-span-3 md:col-start-10" type="submit"><i data-lucide="plus" class="h-4 w-4" aria-hidden="true"></i><span id="plannerSubmitText">Tambah aktivitas</span></button>
+                <button id="plannerCancelEditBtn" class="hidden min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-200 md:col-span-3 md:col-start-7" type="button">Batal edit</button>
               </form>
               <ol id="plannerList" class="mt-4 space-y-2"></ol>
             </div>
@@ -729,6 +730,7 @@
       let activeStorageOwner = "guest";
       let personalDataVersion = 0;
       let currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      let editingPlanId = null;
 
       const currentDateFormatter = new Intl.DateTimeFormat("id-ID", {
         weekday: "long",
@@ -757,6 +759,8 @@
       const taskEditorList = document.getElementById("taskEditorList");
       const plannerDateInput = document.getElementById("plannerDate");
       const plannerList = document.getElementById("plannerList");
+      const plannerSubmitText = document.getElementById("plannerSubmitText");
+      const plannerCancelEditBtn = document.getElementById("plannerCancelEditBtn");
       const holidayMonthList = document.getElementById("holidayMonthList");
       const dailyNoteDateInput = document.getElementById("dailyNoteDate");
       const dailyNoteList = document.getElementById("dailyNoteList");
@@ -1054,6 +1058,31 @@
         }
       }
 
+      function resetPlannerForm() {
+        editingPlanId = null;
+        document.getElementById("plannerForm").reset();
+        updateTimeFieldDisplay("plannerStart", "08:00");
+        updateTimeFieldDisplay("plannerEnd", "09:00");
+        plannerSubmitText.textContent = "Tambah aktivitas";
+        plannerCancelEditBtn.classList.add("hidden");
+        plannerCancelEditBtn.classList.remove("inline-flex");
+        syncEndAfterStartChange();
+      }
+
+      function editDailyPlan(dateKey, item) {
+        editingPlanId = item.id;
+        plannerDateInput.value = dateKey;
+        updateTimeFieldDisplay("plannerStart", item.start || "08:00");
+        updateTimeFieldDisplay("plannerEnd", item.end || "09:00");
+        document.getElementById("plannerActivity").value = item.activity || "";
+        document.getElementById("plannerDetail").value = item.detail || "";
+        plannerSubmitText.textContent = "Simpan perubahan";
+        plannerCancelEditBtn.classList.remove("hidden");
+        plannerCancelEditBtn.classList.add("inline-flex");
+        syncEndAfterStartChange();
+        document.getElementById("plannerActivity").focus();
+      }
+
       function renderDailyPlanner() {
         const dateKey = plannerDateInput.value || formatDateKey(new Date());
         const items = [...(state.dailyPlans[dateKey] || [])].sort((a, b) => a.start.localeCompare(b.start));
@@ -1130,7 +1159,11 @@
 
         items.forEach((item) => {
           const row = document.createElement("li");
-          row.className = `flex items-start gap-3 rounded-lg border p-3 transition ${item.completed ? "border-green-200 bg-green-50" : "border-slate-200 bg-white"}`;
+          row.className = `flex items-start gap-3 rounded-lg border p-3 transition ${
+            editingPlanId === item.id
+              ? "border-blue-300 bg-blue-50"
+              : item.completed ? "border-green-200 bg-green-50" : "border-slate-200 bg-white"
+          }`;
 
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
@@ -1169,19 +1202,32 @@
             content.appendChild(detail);
           }
 
+          const actions = document.createElement("div");
+          actions.className = "flex shrink-0 flex-col gap-1";
+
+          const edit = document.createElement("button");
+          edit.type = "button";
+          edit.className = "min-h-10 rounded-lg px-3 text-xs font-semibold text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200";
+          edit.textContent = "Edit";
+          edit.addEventListener("click", () => {
+            editDailyPlan(dateKey, item);
+          });
+
           const remove = document.createElement("button");
           remove.type = "button";
-          remove.className = "min-h-11 shrink-0 rounded-lg px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200";
+          remove.className = "min-h-10 rounded-lg px-3 text-xs font-semibold text-red-600 transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200";
           remove.textContent = "Hapus";
           remove.addEventListener("click", () => {
             state.dailyPlans[dateKey] = (state.dailyPlans[dateKey] || []).filter((plan) => plan.id !== item.id);
             if (!state.dailyPlans[dateKey].length) delete state.dailyPlans[dateKey];
+            if (editingPlanId === item.id) resetPlannerForm();
             saveDailyPlans();
             renderDailyPlanner();
             renderCalendar();
           });
 
-          row.append(checkbox, content, remove);
+          actions.append(edit, remove);
+          row.append(checkbox, content, actions);
           plannerList.appendChild(row);
         });
       }
@@ -1851,11 +1897,20 @@
       });
 
       plannerDateInput.value = formatDateKey(new Date());
-      plannerDateInput.addEventListener("change", renderDailyPlanner);
+      plannerDateInput.addEventListener("change", () => {
+        editingPlanId = null;
+        plannerSubmitText.textContent = "Tambah aktivitas";
+        plannerCancelEditBtn.classList.add("hidden");
+        plannerCancelEditBtn.classList.remove("inline-flex");
+        renderDailyPlanner();
+      });
       dailyNoteDateInput.value = formatDateKey(new Date());
       dailyNoteDateInput.addEventListener("change", renderDailyNotes);
       document.querySelectorAll(".time-input-trigger").forEach((button) => {
         button.addEventListener("click", () => openTimePicker(button.dataset.target));
+      });
+      plannerCancelEditBtn.addEventListener("click", () => {
+        resetPlannerForm();
       });
       document.querySelectorAll(".time-period-btn").forEach((button) => {
         button.addEventListener("click", () => {
@@ -1898,19 +1953,31 @@
         formError.classList.add("hidden");
 
         if (!state.dailyPlans[dateKey]) state.dailyPlans[dateKey] = [];
-        state.dailyPlans[dateKey].push({
-          id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-          start,
-          end,
-          activity,
-          detail,
-          completed: false,
-        });
+        if (editingPlanId) {
+          const target = state.dailyPlans[dateKey].find((plan) => plan.id === editingPlanId);
+          if (!target) {
+            formError.textContent = "Aktivitas yang diedit tidak ditemukan.";
+            formError.classList.remove("hidden");
+            resetPlannerForm();
+            renderDailyPlanner();
+            return;
+          }
+          target.start = start;
+          target.end = end;
+          target.activity = activity;
+          target.detail = detail;
+        } else {
+          state.dailyPlans[dateKey].push({
+            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            start,
+            end,
+            activity,
+            detail,
+            completed: false,
+          });
+        }
         saveDailyPlans();
-        e.target.reset();
-        updateTimeFieldDisplay("plannerStart", "08:00");
-        updateTimeFieldDisplay("plannerEnd", "09:00");
-        syncEndAfterStartChange();
+        resetPlannerForm();
         renderDailyPlanner();
         renderCalendar();
       });
