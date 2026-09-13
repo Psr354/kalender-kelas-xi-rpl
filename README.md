@@ -15,7 +15,7 @@ Kalender Kelas XI RPL adalah aplikasi web responsif untuk membantu siswa memanta
 
 - Kalender bulanan interaktif dengan navigasi bulan.
 - Penanda hari libur nasional dan cuti bersama Indonesia tahun 2026.
-- Penambahan dan penghapusan tugas pribadi berdasarkan tanggal.
+- Penambahan, pengeditan, dan penghapusan tugas pribadi berdasarkan tanggal.
 - Penyimpanan lokal yang terisolasi per akun dan sinkronisasi data pribadi ke server sendiri.
 - Rundown harian berbasis waktu, detail aktivitas, dan checklist penyelesaian.
 - Progress harian, poin, streak hari sempurna, dan animasi apresiasi saat rundown tuntas.
@@ -116,6 +116,7 @@ Secara default aplikasi berjalan di port `5050`. Gunakan `nginx-kalender-psr354.
 1. Gunakan tombol `<` dan `>` untuk berpindah bulan.
 2. Klik **Tambah Tugas** atau **+ tugas** pada tanggal tertentu.
 3. Isi tanggal dan nama tugas, lalu klik **Simpan Tugas**.
+4. Gunakan tombol **Edit** atau **Hapus** pada daftar tugas untuk mengelola tugas yang sudah tersimpan.
 4. Pilih tanggal pada bagian **Rundown satu hari penuh**.
 5. Isi jam mulai, jam selesai, aktivitas, dan detailnya, lalu tambahkan ke rundown.
 6. Centang aktivitas yang selesai untuk memperoleh poin dan membangun streak.

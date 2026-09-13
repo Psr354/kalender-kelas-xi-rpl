@@ -651,13 +651,18 @@
     <div id="taskModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-4">
       <div class="card-soft w-full max-w-md p-5">
         <div class="mb-4 flex items-center justify-between">
-          <h4 class="text-base font-semibold">Tambah Tugas Pribadi</h4>
+          <h4 class="text-base font-semibold">Kelola Tugas Pribadi</h4>
           <button class="closeModal rounded bg-slate-100 px-2 py-1 text-xs">Tutup</button>
         </div>
         <form id="taskForm" class="space-y-3">
           <input id="taskDate" type="date" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
           <input id="taskTitle" type="text" maxlength="120" placeholder="Contoh: Kerjakan PR Matematika" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" required />
-          <button class="w-full rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">Simpan Tugas</button>
+          <div class="flex gap-2">
+            <button class="flex-1 rounded-lg bg-[color:var(--brand-blue)] px-3 py-2 text-sm font-semibold text-white">
+              <span id="taskSubmitText">Simpan Tugas</span>
+            </button>
+            <button id="taskCancelEditBtn" type="button" class="hidden rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">Batal</button>
+          </div>
         </form>
         <div class="mt-4">
           <p class="mb-2 text-xs font-semibold text-slate-600">Daftar tugas pada tanggal terpilih</p>
@@ -798,6 +803,7 @@
       let personalDataVersion = 0;
       let currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       let editingPlanId = null;
+      let editingTaskIndex = null;
 
       const currentDateFormatter = new Intl.DateTimeFormat("id-ID", {
         weekday: "long",
@@ -824,6 +830,9 @@
       const announcementList = document.getElementById("announcementList");
       const taskDateInput = document.getElementById("taskDate");
       const taskEditorList = document.getElementById("taskEditorList");
+      const taskTitleInput = document.getElementById("taskTitle");
+      const taskSubmitText = document.getElementById("taskSubmitText");
+      const taskCancelEditBtn = document.getElementById("taskCancelEditBtn");
       const plannerDateInput = document.getElementById("plannerDate");
       const plannerList = document.getElementById("plannerList");
       const plannerSubmitText = document.getElementById("plannerSubmitText");
@@ -1332,22 +1341,57 @@
           title.className = "truncate";
           title.textContent = task;
 
+          const actions = document.createElement("div");
+          actions.className = "flex shrink-0 gap-1";
+
+          const edit = document.createElement("button");
+          edit.type = "button";
+          edit.className = "rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100";
+          edit.textContent = "Edit";
+          edit.setAttribute("aria-label", `Edit tugas ${task}`);
+          edit.addEventListener("click", () => {
+            editingTaskIndex = index;
+            taskTitleInput.value = task;
+            taskSubmitText.textContent = "Simpan Perubahan";
+            taskCancelEditBtn.classList.remove("hidden");
+            taskTitleInput.focus();
+            taskTitleInput.select();
+          });
+
           const remove = document.createElement("button");
           remove.type = "button";
-          remove.className = "rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600";
+          remove.className = "rounded bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-100";
           remove.textContent = "Hapus";
+          remove.setAttribute("aria-label", `Hapus tugas ${task}`);
           remove.addEventListener("click", () => {
             const updated = (state.personalTasks[dateKey] || []).filter((_, i) => i !== index);
             if (updated.length) state.personalTasks[dateKey] = updated;
             else delete state.personalTasks[dateKey];
+            if (editingTaskIndex === index) resetTaskForm();
+            else if (editingTaskIndex !== null && index < editingTaskIndex) editingTaskIndex -= 1;
             savePersonalTasks();
             renderCalendar();
             renderTaskEditor(dateKey);
           });
 
-          item.append(title, remove);
+          actions.append(edit, remove);
+          item.append(title, actions);
           taskEditorList.appendChild(item);
         });
+      }
+
+      function resetTaskForm() {
+        editingTaskIndex = null;
+        taskTitleInput.value = "";
+        taskSubmitText.textContent = "Simpan Tugas";
+        taskCancelEditBtn.classList.add("hidden");
+      }
+
+      function openTaskModal(dateKey) {
+        resetTaskForm();
+        taskDateInput.value = dateKey;
+        renderTaskEditor(dateKey);
+        openModal("taskModal");
       }
 
       function renderHolidayMonthList(year, month) {
@@ -1522,9 +1566,7 @@
 
         document.querySelectorAll(".quickAddTask").forEach((btn) => {
           btn.addEventListener("click", () => {
-            document.getElementById("taskDate").value = btn.dataset.date;
-            renderTaskEditor(btn.dataset.date);
-            openModal("taskModal");
+            openTaskModal(btn.dataset.date);
           });
         });
       }
@@ -2077,27 +2119,20 @@
 
       document.getElementById("openAdminBtn").addEventListener("click", () => openModal("loginModal"));
       document.getElementById("topAddTaskBtn").addEventListener("click", () => {
-        const today = formatDateKey(new Date());
-        taskDateInput.value = today;
-        renderTaskEditor(today);
-        openModal("taskModal");
+        openTaskModal(formatDateKey(new Date()));
       });
       document.getElementById("sidebarAddTaskBtn").addEventListener("click", () => {
-        const today = formatDateKey(new Date());
-        taskDateInput.value = today;
-        renderTaskEditor(today);
-        openModal("taskModal");
+        openTaskModal(formatDateKey(new Date()));
       });
       document.getElementById("mobileAddTaskBtn").addEventListener("click", () => {
-        const today = formatDateKey(new Date());
-        taskDateInput.value = today;
-        renderTaskEditor(today);
-        openModal("taskModal");
+        openTaskModal(formatDateKey(new Date()));
       });
 
       taskDateInput.addEventListener("change", () => {
+        resetTaskForm();
         renderTaskEditor(taskDateInput.value);
       });
+      taskCancelEditBtn.addEventListener("click", resetTaskForm);
 
       document.getElementById("editEventsBtn").addEventListener("click", () => openModal("eventsModal"));
       document.getElementById("editScheduleBtn").addEventListener("click", () => openModal("scheduleModal"));
@@ -2146,17 +2181,21 @@
 
       document.getElementById("taskForm").addEventListener("submit", (e) => {
         e.preventDefault();
-        const date = document.getElementById("taskDate").value;
-        const title = document.getElementById("taskTitle").value.trim();
+        const date = taskDateInput.value;
+        const title = taskTitleInput.value.trim();
         if (!date || !title) return;
 
         if (!state.personalTasks[date]) state.personalTasks[date] = [];
-        state.personalTasks[date].push(title);
+        if (editingTaskIndex !== null && state.personalTasks[date][editingTaskIndex] !== undefined) {
+          state.personalTasks[date][editingTaskIndex] = title;
+        } else {
+          state.personalTasks[date].push(title);
+        }
         savePersonalTasks();
         renderCalendar();
+        resetTaskForm();
         renderTaskEditor(date);
         closeModal("taskModal");
-        e.target.reset();
       });
 
       document.getElementById("eventForm").addEventListener("submit", async (e) => {
