@@ -5,3 +5,5 @@ server/.env
 server/data/
 firebase-export/
 migration-output/
+documentation.md
+nginx*
