@@ -2,6 +2,7 @@ import json
 import os
 import sqlite3
 import time
+import urllib.request
 import uuid
 from functools import wraps
 from pathlib import Path
@@ -185,6 +186,30 @@ def me():
             "isAdmin": bool(session.get("is_admin")),
         }
     })
+
+
+HOLIDAYS_CACHE = {"data": None, "fetched_at": 0}
+
+
+@app.get("/api/holidays")
+def holidays_get():
+    now_sec = time.time()
+    if HOLIDAYS_CACHE["data"] and (now_sec - HOLIDAYS_CACHE["fetched_at"] < 86400):
+        return jsonify(HOLIDAYS_CACHE["data"])
+    try:
+        req = urllib.request.Request(
+            "https://raw.githubusercontent.com/guangrei/APIHariLibur_V2/main/holidays.json",
+            headers={"User-Agent": "KalenderRPL/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            HOLIDAYS_CACHE["data"] = data
+            HOLIDAYS_CACHE["fetched_at"] = now_sec
+            return jsonify(data)
+    except Exception:
+        if HOLIDAYS_CACHE["data"]:
+            return jsonify(HOLIDAYS_CACHE["data"])
+        return jsonify({})
 
 
 @app.get("/api/events")

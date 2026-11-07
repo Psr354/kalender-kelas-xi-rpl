@@ -26,7 +26,7 @@
         sabtu: "Sabtu",
       };
 
-      const nationalHolidays = {
+      let nationalHolidays = {
         "2026-01-01": { name: "Tahun Baru 2026", type: "national" },
         "2026-01-16": { name: "Isra Mikraj", type: "national" },
         "2026-02-16": { name: "Cuti Bersama Imlek", type: "joint" },
@@ -52,6 +52,30 @@
         "2026-08-25": { name: "Maulid Nabi Muhammad", type: "national" },
         "2026-12-24": { name: "Cuti Bersama Natal", type: "joint" },
         "2026-12-25": { name: "Hari Raya Natal", type: "national" },
+        "2027-01-01": { name: "Hari Tahun Baru", type: "national" },
+        "2027-01-05": { name: "Isra Mikraj Nabi Muhammad", type: "national" },
+        "2027-02-05": { name: "Cuti Bersama Tahun Baru Imlek", type: "joint" },
+        "2027-02-06": { name: "Tahun Baru Imlek", type: "national" },
+        "2027-03-08": { name: "Hari Suci Nyepi (Tahun Baru Saka)", type: "national" },
+        "2027-03-09": { name: "Cuti Bersama Idul Fitri", type: "joint" },
+        "2027-03-10": { name: "Hari Idul Fitri", type: "national" },
+        "2027-03-11": { name: "Hari Idul Fitri", type: "national" },
+        "2027-03-12": { name: "Cuti Bersama Idul Fitri", type: "joint" },
+        "2027-03-15": { name: "Cuti Bersama Idul Fitri", type: "joint" },
+        "2027-03-25": { name: "Cuti Bersama Wafat Isa Almasih", type: "joint" },
+        "2027-03-26": { name: "Wafat Isa Almasih", type: "national" },
+        "2027-05-01": { name: "Hari Buruh Internasional", type: "national" },
+        "2027-05-06": { name: "Kenaikan Isa Al Masih", type: "national" },
+        "2027-05-17": { name: "Idul Adha (Lebaran Haji)", type: "national" },
+        "2027-05-18": { name: "Idul Adha (Lebaran Haji)", type: "national" },
+        "2027-05-19": { name: "Cuti Bersama Waisak", type: "joint" },
+        "2027-05-20": { name: "Hari Raya Waisak", type: "national" },
+        "2027-06-01": { name: "Hari Lahir Pancasila", type: "national" },
+        "2027-06-06": { name: "Tahun Baru Islam 1449 H", type: "national" },
+        "2027-08-15": { name: "Maulid Nabi Muhammad", type: "national" },
+        "2027-08-17": { name: "Hari Proklamasi Kemerdekaan RI", type: "national" },
+        "2027-12-24": { name: "Cuti Bersama Natal", type: "joint" },
+        "2027-12-25": { name: "Hari Raya Natal", type: "national" },
       };
 
       let isAdmin = false;
@@ -1188,6 +1212,54 @@
         }
       }
 
+      async function fetchHolidays() {
+        try {
+          const cached = localStorage.getItem("cached_holidays_v1");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && typeof parsed === "object") {
+              Object.assign(nationalHolidays, parsed);
+              renderCalendar();
+            }
+          }
+        } catch (e) {
+          console.warn("Gagal membaca cache hari libur lokal.", e);
+        }
+
+        try {
+          let data = null;
+          try {
+            data = await apiRequest("/api/holidays");
+          } catch (e) {
+            const res = await fetch("https://raw.githubusercontent.com/guangrei/APIHariLibur_V2/main/holidays.json");
+            if (res.ok) data = await res.json();
+          }
+
+          if (data && typeof data === "object") {
+            let updated = false;
+            for (const [dateKey, val] of Object.entries(data)) {
+              if (/^\d{4}-\d{2}-\d{2}$/.test(dateKey) && val && typeof val === "object" && val.summary) {
+                const summary = String(val.summary).trim();
+                const isJoint = /cuti bersama|joint/i.test(summary);
+                nationalHolidays[dateKey] = {
+                  name: summary,
+                  type: isJoint ? "joint" : "national",
+                };
+                updated = true;
+              }
+            }
+            if (updated) {
+              try {
+                localStorage.setItem("cached_holidays_v1", JSON.stringify(nationalHolidays));
+              } catch (e) {}
+              renderCalendar();
+            }
+          }
+        } catch (err) {
+          console.warn("Tidak dapat memperbarui hari libur dari API.", err);
+        }
+      }
+
       async function initBackend() {
         try {
           const sessionData = await apiRequest("/api/me");
@@ -1196,7 +1268,7 @@
           console.warn("Session belum dapat diperiksa.", err);
           await applySession(null);
         }
-        await loadSharedData();
+        await Promise.all([loadSharedData(), fetchHolidays()]);
       }
 
       function timeValueToParts(value) {
