@@ -14,14 +14,30 @@ DATABASE_PATH = Path(os.environ.get("PSR354_DATABASE_PATH", "data/kalender.sqlit
 DAY_IDS = {"minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"}
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-me")
+secret_key = os.environ.get("SECRET_KEY")
+if not secret_key:
+    if os.environ.get("FLASK_ENV") == "production":
+        raise RuntimeError("SECRET_KEY environment variable is required in production mode.")
+    secret_key = "dev-only-change-me"
+app.secret_key = secret_key
+app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB max request payload
 CORS(app, supports_credentials=True)
+
+frontend_env = os.environ.get("PSR354_FRONTEND_DIR")
+if frontend_env and Path(frontend_env).is_dir():
+    FRONTEND_DIR = Path(frontend_env).resolve()
+elif Path("/app/index.html").exists():
+    FRONTEND_DIR = Path("/app")
+else:
+    FRONTEND_DIR = Path(__file__).resolve().parent.parent
 
 
 def db():
     DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DATABASE_PATH)
+    conn = sqlite3.connect(DATABASE_PATH, timeout=20.0)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute("PRAGMA busy_timeout = 20000;")
     return conn
 
 
@@ -107,6 +123,10 @@ def init_db():
                 )
 
 
+# Inisialisasi skema database saat modul dimuat agar otomatis aktif di bawah Gunicorn
+init_db()
+
+
 @app.get("/api/health")
 def health():
     return jsonify({"ok": True})
@@ -114,12 +134,22 @@ def health():
 
 @app.get("/")
 def frontend_index():
-    return send_from_directory("/app", "index.html")
+    return send_from_directory(FRONTEND_DIR, "index.html")
 
 
 @app.get("/assets/<path:filename>")
 def frontend_assets(filename):
-    return send_from_directory("/app/assets", filename)
+    return send_from_directory(FRONTEND_DIR / "assets", filename)
+
+
+@app.get("/css/<path:filename>")
+def frontend_css(filename):
+    return send_from_directory(FRONTEND_DIR / "assets" / "css", filename)
+
+
+@app.get("/js/<path:filename>")
+def frontend_js(filename):
+    return send_from_directory(FRONTEND_DIR / "assets" / "js", filename)
 
 
 @app.post("/api/login")
@@ -332,7 +362,14 @@ def user_data_show():
 @app.put("/api/user-data")
 @require_login
 def user_data_update():
-    payload = request.get_json(silent=True) or {}
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "invalid_payload"}), 400
+
+    raw_json = json.dumps(payload)
+    if len(raw_json) > 512 * 1024:
+        return jsonify({"error": "payload_too_large"}), 413
+
     data_version = int(payload.get("dataVersion") or 0)
     record = {
         "personal_tasks": json.dumps(json_map(payload.get("personalTasks"))),
@@ -366,5 +403,4 @@ def user_data_update():
 
 
 if __name__ == "__main__":
-    init_db()
     app.run(host="0.0.0.0", port=5050)

@@ -1,0 +1,294 @@
+      :root {
+        --brand-blue: #2563eb;
+        --soft-bg: #f6f8fb;
+        --surface: #ffffff;
+        --border: #dfe5ef;
+        --text: #172033;
+      }
+
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        background: var(--soft-bg);
+        color: var(--text);
+      }
+
+      .card-soft {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      }
+
+      .calendar-cell {
+        min-height: 112px;
+      }
+
+      .planner-check {
+        accent-color: #16a34a;
+      }
+
+      .holiday-badge {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .note-card {
+        overflow-wrap: anywhere;
+      }
+
+      button,
+      a,
+      input,
+      select {
+        touch-action: manipulation;
+      }
+
+      button,
+      a {
+        cursor: pointer;
+      }
+
+      .reward-pop {
+        animation: reward-pop 320ms ease-out;
+      }
+
+      .time-input-trigger {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 600;
+        min-height: 44px;
+        padding: 0.7rem 0.9rem;
+        text-align: left;
+        width: 100%;
+      }
+
+      .time-input-trigger:focus-visible,
+      .time-input-trigger:hover {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        outline: none;
+      }
+
+      .time-picker-modal {
+        backdrop-filter: blur(2px);
+      }
+
+      .time-period-btn,
+      .time-mode-btn {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        min-height: 40px;
+        padding: 0.5rem 0.8rem;
+      }
+
+      .time-period-btn.active,
+      .time-mode-btn.active {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        color: #1d4ed8;
+      }
+
+      .time-picker-face {
+        background: #e2e8f0;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        height: 282px;
+        margin: 0 auto;
+        position: relative;
+        width: 282px;
+      }
+
+      .time-picker-face::before {
+        background: rgba(255, 255, 255, 0.42);
+        border-radius: 50%;
+        content: "";
+        inset: 16px;
+        position: absolute;
+      }
+
+      .time-picker-number {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 50%;
+        color: #0f172a;
+        display: inline-flex;
+        font-size: 1rem;
+        font-weight: 700;
+        height: 44px;
+        justify-content: center;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        width: 44px;
+      }
+
+      .time-picker-number.selected {
+        background: #2563eb;
+        color: #fff;
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.24);
+      }
+
+      .time-picker-number:disabled {
+        color: #94a3b8;
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .time-picker-hand {
+        background: #64748b;
+        border-radius: 999px;
+        height: 86px;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform-origin: center 100%;
+        width: 5px;
+      }
+
+      .time-picker-hand::after {
+        background: #2563eb;
+        border-radius: 50%;
+        content: "";
+        height: 14px;
+        left: 50%;
+        position: absolute;
+        top: -8px;
+        transform: translateX(-50%);
+        width: 14px;
+      }
+
+      .planner-actions {
+        align-items: center;
+        display: inline-flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 0.375rem;
+        white-space: nowrap;
+      }
+
+      .planner-action-btn {
+        align-items: center;
+        border-radius: 8px;
+        display: inline-flex;
+        height: 40px;
+        justify-content: center;
+        transition: background 0.2s ease, color 0.2s ease;
+        width: 40px;
+      }
+
+      .planner-form-actions {
+        align-items: center;
+        display: flex;
+        gap: 0.75rem;
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        margin-top: -0.125rem;
+      }
+
+      .planner-form-actions button {
+        min-width: 12rem;
+      }
+
+      @media (max-width: 640px) {
+        .planner-form-actions {
+          align-items: stretch;
+          flex-direction: column-reverse;
+        }
+
+        .planner-form-actions button {
+          min-width: 0;
+          width: 100%;
+        }
+      }
+
+      .planner-action-btn:focus-visible {
+        outline: 2px solid rgba(59, 130, 246, 0.45);
+        outline-offset: 2px;
+      }
+
+      .planner-action-btn.edit {
+        color: #2563eb;
+      }
+
+      .planner-action-btn.edit:hover {
+        background: #dbeafe;
+      }
+
+      .planner-action-btn.remove {
+        color: #dc2626;
+      }
+
+      .planner-action-btn.remove:hover {
+        background: #fee2e2;
+      }
+
+      .celebration-piece {
+        animation: celebration 900ms ease-out forwards;
+        border-radius: 2px;
+        height: 8px;
+        pointer-events: none;
+        position: fixed;
+        width: 8px;
+        z-index: 100;
+      }
+
+      @keyframes reward-pop {
+        0% { transform: scale(0.92); }
+        65% { transform: scale(1.04); }
+        100% { transform: scale(1); }
+      }
+
+      @keyframes celebration {
+        0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+        100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(240deg); }
+      }
+
+      @media (max-width: 768px) {
+        .calendar-cell {
+          min-height: 72px;
+          padding: 0.5rem;
+        }
+
+        .quickAddTask {
+          display: none;
+        }
+
+        .holiday-badge {
+          display: block;
+          font-size: 0;
+          height: 6px;
+          margin-top: 3px;
+          padding: 0;
+          width: 18px;
+        }
+
+        .task-badge {
+          height: 4px;
+          overflow: hidden;
+          padding: 0;
+          text-indent: -9999px;
+          width: 18px;
+        }
+
+        .daily-progress-badge {
+          display: none;
+        }
+
+        .daily-note-badge {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .reward-pop,
+        .celebration-piece {
+          animation: none;
+        }
+      }

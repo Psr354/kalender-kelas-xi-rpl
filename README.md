@@ -135,9 +135,27 @@ Tanpa login, tugas, rundown, dan catatan tersimpan dalam ruang lokal tamu. Setel
 ```text
 kalender-kelas-xi-rpl/
 ├── assets/
+│   ├── css/
+│   │   └── styles.css
+│   ├── js/
+│   │   └── app.js
 │   ├── jadwal_kelas.png
 │   └── logo_patpul.png
+├── docs/
+├── scripts/
+│   ├── migrate-firebase-private.mjs
+│   └── migrate-public-firestore.mjs
+├── server/
+│   ├── app.py
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── .env.example
+├── documentation.md
+├── firestore.rules
 ├── index.html
+├── netlify.toml
+├── nginx-kalender-psr354.conf
 └── README.md
 ```
 

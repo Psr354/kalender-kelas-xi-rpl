@@ -1,6 +1,8 @@
 services:
   kalender_psr354:
-    build: .
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
     container_name: kalender_psr354_app
     ports:
       - "5050:5050"

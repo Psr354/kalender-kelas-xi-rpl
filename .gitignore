@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 server/.env
 server/data/
+data/
+*.sqlite3*
 firebase-export/
 migration-output/
 documentation.md

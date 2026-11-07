@@ -5,7 +5,7 @@ import crypto from "node:crypto";
 
 const PROJECT_ID = "kalenderpl";
 const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
-const SERVER_BASE = process.env.PSR354_SERVER_BASE || "http://10.172.210.53:5050";
+const SERVER_BASE = process.env.PSR354_SERVER_BASE || "http://localhost:5050";
 const ADMIN_EMAIL = process.env.PSR354_ADMIN_EMAIL || "admin@psr354.local";
 const ADMIN_PASSWORD = process.env.PSR354_ADMIN_PASSWORD;
 const AUTH_EXPORT_PATH = process.env.PSR354_AUTH_EXPORT || "firebase-export/auth-users.json";

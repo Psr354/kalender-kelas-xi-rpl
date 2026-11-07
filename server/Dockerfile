@@ -2,10 +2,12 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY server/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py .
+COPY server/app.py app.py
+COPY index.html index.html
+COPY assets assets
 
 ENV PSR354_DATABASE_PATH=/data/kalender.sqlite3
 EXPOSE 5050

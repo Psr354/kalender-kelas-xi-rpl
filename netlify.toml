@@ -3,7 +3,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "http://10.172.210.53:5050/api/:splat"
+  to = "https://kalender.sekeluarga.web.id/api/:splat"
   status = 200
   force = true
 

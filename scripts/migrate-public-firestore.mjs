@@ -1,8 +1,13 @@
-const FIRESTORE_BASE = "https://firestore.googleapis.com/v1/projects/kalenderpl/databases/(default)/documents";
-const FIREBASE_API_KEY = "AIzaSyAQrQdRkPyThLHxgGGHj0gQshtQ_ifCntE";
-const SERVER_BASE = process.env.PSR354_SERVER_BASE || "http://10.172.210.53:5050";
+const FIRESTORE_BASE = process.env.FIRESTORE_BASE || "https://firestore.googleapis.com/v1/projects/kalenderpl/databases/(default)/documents";
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || "";
+const SERVER_BASE = process.env.PSR354_SERVER_BASE || "http://localhost:5050";
 const ADMIN_EMAIL = process.env.PSR354_ADMIN_EMAIL || "admin@psr354.local";
 const ADMIN_PASSWORD = process.env.PSR354_ADMIN_PASSWORD;
+
+if (!FIREBASE_API_KEY) {
+  console.error("Set FIREBASE_API_KEY environment variable before running this script.");
+  process.exit(1);
+}
 
 if (!ADMIN_PASSWORD) {
   console.error("Set PSR354_ADMIN_PASSWORD before running this script.");
